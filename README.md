@@ -284,6 +284,13 @@ Each catches something none of the others can.
 
 `npm test` runs all ten.
 
+**On a fresh clone `npm test` exits 2, and that is not a failure.** The known
+answers need two private repositories, so that layer reports SKIP and the runner
+exits 2 to say "could not check" rather than 0 for "checked, fine" — the nine
+other layers still pass and are self-contained. Point it at the material with
+`SVD_WEB` and `SVD_APP` to get an exit of 0, and in CI treat 2 as a warning
+rather than a break.
+
 ### The known answers
 
 Three, traced by hand, kept as a contract in `test/known-answers.mjs`:
