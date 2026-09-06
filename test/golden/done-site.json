@@ -1,0 +1,341 @@
+{
+  "mutedCount": 0,
+  "version": 1,
+  "tool": "said-vs-done",
+  "detector": "done",
+  "args": [
+    "--code",
+    "test/fixtures/site",
+    "--config",
+    "test/fixtures/golden.config.json",
+    "--lang",
+    "en"
+  ],
+  "counts": {
+    "covered": 0,
+    "no-witness": 0,
+    "inspect": 0,
+    "elsewhere": 12,
+    "promisesSure": 12,
+    "codeFiles": 0,
+    "codeRoots": [
+      "site"
+    ],
+    "scopeStated": true
+  },
+  "findings": [
+    {
+      "id": "fece1efc281d",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 6,
+      "label": "elsewhere  [pl] deletion  Zgłoszenia kasuję po 30 dniach.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "deletion",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "supportNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Zgłoszenia kasuję po 30 dniach.",
+        "evidence": []
+      },
+      "unitId": "780373b06a42"
+    },
+    {
+      "id": "0dc2567f4528",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 7,
+      "label": "elsewhere  [pl] response  Odpowiadam na adres Twojego konta.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "response",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "replyNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Odpowiadam na adres Twojego konta.",
+        "evidence": []
+      },
+      "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "e93805c5b26a",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "withApostrophe",
+      "line": 9,
+      "label": "elsewhere  [pl] transmission  Jeśli konto o tym adresie istnieje, wyślemy na niego link.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "transmission",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "withApostrophe",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Jeśli konto o tym adresie istnieje, wyślemy na niego link.",
+        "evidence": []
+      },
+      "unitId": "9e352e1f8488"
+    },
+    {
+      "id": "54746335235b",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "withMarkup",
+      "line": 10,
+      "label": "elsewhere  [pl] encryption  Dane szyfrujemy przed zapisem.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "encryption",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "withMarkup",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Dane szyfrujemy przed zapisem.",
+        "evidence": []
+      },
+      "unitId": "d274a5ab02f5"
+    },
+    {
+      "id": "fece1efc281d~2",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 13,
+      "label": "elsewhere  [en] deletion  I delete reports after 30 days.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "deletion",
+        "lang": "en",
+        "negated": false,
+        "tier": "sure",
+        "key": "supportNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "I delete reports after 30 days.",
+        "evidence": []
+      },
+      "unitId": "780373b06a42"
+    },
+    {
+      "id": "0dc2567f4528~2",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 14,
+      "label": "elsewhere  [en] response  I reply to your account address.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "response",
+        "lang": "en",
+        "negated": false,
+        "tier": "sure",
+        "key": "replyNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "I reply to your account address.",
+        "evidence": []
+      },
+      "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "fece1efc281d~3",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 20,
+      "label": "elsewhere  [de] deletion  Meldungen lösche ich nach 30 Tagen.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "deletion",
+        "lang": "de",
+        "negated": false,
+        "tier": "sure",
+        "key": "supportNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Meldungen lösche ich nach 30 Tagen.",
+        "evidence": []
+      },
+      "unitId": "780373b06a42"
+    },
+    {
+      "id": "0dc2567f4528~3",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 21,
+      "label": "elsewhere  [de] response  Ich antworte an die Adresse Ihres Kontos.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "response",
+        "lang": "de",
+        "negated": false,
+        "tier": "sure",
+        "key": "replyNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Ich antworte an die Adresse Ihres Kontos.",
+        "evidence": []
+      },
+      "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "b4cc9d6b3d7c",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "inverted",
+      "line": 22,
+      "label": "elsewhere  [de] sharing/NEG  Ihre Daten geben wir nicht weiter.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "sharing",
+        "lang": "de",
+        "negated": true,
+        "tier": "sure",
+        "key": "inverted",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Ihre Daten geben wir nicht weiter.",
+        "evidence": []
+      },
+      "unitId": "b164379647be"
+    },
+    {
+      "id": "fece1efc281d~4",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 25,
+      "label": "elsewhere  [es] deletion  Eliminamos los mensajes a los 30 días.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "deletion",
+        "lang": "es",
+        "negated": false,
+        "tier": "sure",
+        "key": "supportNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Eliminamos los mensajes a los 30 días.",
+        "evidence": []
+      },
+      "unitId": "780373b06a42"
+    },
+    {
+      "id": "0dc2567f4528~4",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 26,
+      "label": "elsewhere  [es] response  Respondemos a la dirección de tu cuenta.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "response",
+        "lang": "es",
+        "negated": false,
+        "tier": "sure",
+        "key": "replyNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Respondemos a la dirección de tu cuenta.",
+        "evidence": []
+      },
+      "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "9204e28d0990",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "privacy.html",
+      "anchor": "nie udostępniamy twoich danych nikomu.",
+      "line": 20,
+      "label": "elsewhere  [pl] sharing/NEG  Nie udostępniamy Twoich danych nikomu.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "sharing",
+        "lang": "pl",
+        "negated": true,
+        "tier": "sure",
+        "key": null,
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site"
+        ],
+        "sentence": "Nie udostępniamy Twoich danych nikomu.",
+        "evidence": []
+      },
+      "unitId": "3803b88bcee7"
+    }
+  ],
+  "root": "test/fixtures/site"
+}

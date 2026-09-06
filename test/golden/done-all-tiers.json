@@ -1,0 +1,526 @@
+{
+  "mutedCount": 0,
+  "version": 1,
+  "tool": "said-vs-done",
+  "detector": "done",
+  "args": [
+    "--tier",
+    "all",
+    "--code",
+    "test/fixtures/site",
+    "test/fixtures/app",
+    "--config",
+    "test/fixtures/golden.config.json",
+    "--lang",
+    "en"
+  ],
+  "counts": {
+    "covered": 8,
+    "no-witness": 1,
+    "inspect": 0,
+    "elsewhere": 8,
+    "promisesSure": 17,
+    "codeFiles": 2,
+    "codeRoots": [
+      "site",
+      "app"
+    ],
+    "scopeStated": true
+  },
+  "findings": [
+    {
+      "id": "0ee2231e5be1",
+      "detector": "done",
+      "rule": "covered",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 6,
+      "label": "covered    [pl] deletion  Zgłoszenia kasuję po 30 dniach.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witnessWithTheNumber",
+        "area": "deletion",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "supportNote",
+        "numbers": [
+          "30"
+        ],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Zgłoszenia kasuję po 30 dniach.",
+        "evidence": [
+          "app/migrations.sql:10"
+        ]
+      },
+      "unitId": "780373b06a42"
+    },
+    {
+      "id": "3c267d955ceb",
+      "detector": "done",
+      "rule": "covered",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 7,
+      "label": "covered    [pl] response  Odpowiadam na adres Twojego konta.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witness",
+        "area": "response",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "replyNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Odpowiadam na adres Twojego konta.",
+        "evidence": [
+          "app/mailer.js:2",
+          "app/mailer.js:5",
+          "app/mailer.js:6"
+        ]
+      },
+      "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "3a6cebdef09c",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "heroLead",
+      "line": 8,
+      "label": "elsewhere  [pl] transmission  Nagranie i tekst zostają na Twoim komputerze.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "transmission",
+        "lang": "pl",
+        "negated": false,
+        "tier": "edge",
+        "key": "heroLead",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Nagranie i tekst zostają na Twoim komputerze.",
+        "evidence": []
+      },
+      "unitId": "93b676d6be5c"
+    },
+    {
+      "id": "e93805c5b26a",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "withApostrophe",
+      "line": 9,
+      "label": "elsewhere  [pl] transmission  Jeśli konto o tym adresie istnieje, wyślemy na niego link.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "transmission",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "withApostrophe",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Jeśli konto o tym adresie istnieje, wyślemy na niego link.",
+        "evidence": []
+      },
+      "unitId": "9e352e1f8488"
+    },
+    {
+      "id": "54746335235b",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "withMarkup",
+      "line": 10,
+      "label": "elsewhere  [pl] encryption  Dane szyfrujemy przed zapisem.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "encryption",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "withMarkup",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Dane szyfrujemy przed zapisem.",
+        "evidence": []
+      },
+      "unitId": "d274a5ab02f5"
+    },
+    {
+      "id": "0ee2231e5be1~2",
+      "detector": "done",
+      "rule": "covered",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 13,
+      "label": "covered    [en] deletion  I delete reports after 30 days.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witnessWithTheNumber",
+        "area": "deletion",
+        "lang": "en",
+        "negated": false,
+        "tier": "sure",
+        "key": "supportNote",
+        "numbers": [
+          "30"
+        ],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "I delete reports after 30 days.",
+        "evidence": [
+          "app/migrations.sql:10"
+        ]
+      },
+      "unitId": "780373b06a42"
+    },
+    {
+      "id": "3c267d955ceb~2",
+      "detector": "done",
+      "rule": "covered",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 14,
+      "label": "covered    [en] response  I reply to your account address.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witness",
+        "area": "response",
+        "lang": "en",
+        "negated": false,
+        "tier": "sure",
+        "key": "replyNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "I reply to your account address.",
+        "evidence": [
+          "app/mailer.js:2",
+          "app/mailer.js:5",
+          "app/mailer.js:6"
+        ]
+      },
+      "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "3a6cebdef09c~2",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "heroLead",
+      "line": 15,
+      "label": "elsewhere  [en] transmission/NEG  Your recording never leaves your computer.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "transmission",
+        "lang": "en",
+        "negated": true,
+        "tier": "edge",
+        "key": "heroLead",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Your recording never leaves your computer.",
+        "evidence": []
+      },
+      "unitId": "93b676d6be5c"
+    },
+    {
+      "id": "0ee2231e5be1~3",
+      "detector": "done",
+      "rule": "covered",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 20,
+      "label": "covered    [de] deletion  Meldungen lösche ich nach 30 Tagen.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witnessWithTheNumber",
+        "area": "deletion",
+        "lang": "de",
+        "negated": false,
+        "tier": "sure",
+        "key": "supportNote",
+        "numbers": [
+          "30"
+        ],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Meldungen lösche ich nach 30 Tagen.",
+        "evidence": [
+          "app/migrations.sql:10"
+        ]
+      },
+      "unitId": "780373b06a42"
+    },
+    {
+      "id": "3c267d955ceb~3",
+      "detector": "done",
+      "rule": "covered",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 21,
+      "label": "covered    [de] response  Ich antworte an die Adresse Ihres Kontos.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witness",
+        "area": "response",
+        "lang": "de",
+        "negated": false,
+        "tier": "sure",
+        "key": "replyNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Ich antworte an die Adresse Ihres Kontos.",
+        "evidence": [
+          "app/mailer.js:2",
+          "app/mailer.js:5",
+          "app/mailer.js:6"
+        ]
+      },
+      "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "b4cc9d6b3d7c",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "js/i18n-fixture.js",
+      "anchor": "inverted",
+      "line": 22,
+      "label": "elsewhere  [de] sharing/NEG  Ihre Daten geben wir nicht weiter.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "sharing",
+        "lang": "de",
+        "negated": true,
+        "tier": "sure",
+        "key": "inverted",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Ihre Daten geben wir nicht weiter.",
+        "evidence": []
+      },
+      "unitId": "b164379647be"
+    },
+    {
+      "id": "0ee2231e5be1~4",
+      "detector": "done",
+      "rule": "covered",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 25,
+      "label": "covered    [es] deletion  Eliminamos los mensajes a los 30 días.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witnessWithTheNumber",
+        "area": "deletion",
+        "lang": "es",
+        "negated": false,
+        "tier": "sure",
+        "key": "supportNote",
+        "numbers": [
+          "30"
+        ],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Eliminamos los mensajes a los 30 días.",
+        "evidence": [
+          "app/migrations.sql:10"
+        ]
+      },
+      "unitId": "780373b06a42"
+    },
+    {
+      "id": "3c267d955ceb~4",
+      "detector": "done",
+      "rule": "covered",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 26,
+      "label": "covered    [es] response  Respondemos a la dirección de tu cuenta.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witness",
+        "area": "response",
+        "lang": "es",
+        "negated": false,
+        "tier": "sure",
+        "key": "replyNote",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Respondemos a la dirección de tu cuenta.",
+        "evidence": [
+          "app/mailer.js:2",
+          "app/mailer.js:5",
+          "app/mailer.js:6"
+        ]
+      },
+      "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "8b6e996984eb",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "privacy.html",
+      "anchor": "nagranie nie opuszcza twojego komputera.",
+      "line": 6,
+      "label": "elsewhere  [pl] transmission/NEG  Nagranie nie opuszcza Twojego komputera.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "transmission",
+        "lang": "pl",
+        "negated": true,
+        "tier": "edge",
+        "key": null,
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Nagranie nie opuszcza Twojego komputera.",
+        "evidence": []
+      },
+      "unitId": "82aa64562069"
+    },
+    {
+      "id": "9204e28d0990",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "privacy.html",
+      "anchor": "nie udostępniamy twoich danych nikomu.",
+      "line": 20,
+      "label": "elsewhere  [pl] sharing/NEG  Nie udostępniamy Twoich danych nikomu.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "sharing",
+        "lang": "pl",
+        "negated": true,
+        "tier": "sure",
+        "key": null,
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Nie udostępniamy Twoich danych nikomu.",
+        "evidence": []
+      },
+      "unitId": "3803b88bcee7"
+    },
+    {
+      "id": "23f8cf0ab540",
+      "detector": "done",
+      "rule": "no-witness",
+      "file": "privacy.html",
+      "anchor": "hasło jest przechowywane wyłącznie w postaci skrótu.",
+      "line": 21,
+      "label": "no-witness [pl] storage  Hasło jest przechowywane wyłącznie w postaci skrótu.",
+      "meta": {
+        "verdict": "no-witness",
+        "why": "venueButNothingDoesIt",
+        "area": "storage",
+        "lang": "pl",
+        "negated": false,
+        "tier": "edge",
+        "key": null,
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Hasło jest przechowywane wyłącznie w postaci skrótu.",
+        "evidence": [
+          "app/migrations.sql:5"
+        ]
+      },
+      "unitId": "1e746d5d22fd"
+    },
+    {
+      "id": "89f388f71d69",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "privacy.html",
+      "anchor": "hasło jest przechowywane wyłącznie w postaci skrótu.",
+      "line": 21,
+      "label": "elsewhere  [pl] encryption  Hasło jest przechowywane wyłącznie w postaci skrótu.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "encryption",
+        "lang": "pl",
+        "negated": false,
+        "tier": "edge",
+        "key": null,
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Hasło jest przechowywane wyłącznie w postaci skrótu.",
+        "evidence": []
+      },
+      "unitId": "1e746d5d22fd"
+    }
+  ],
+  "root": "test/fixtures/site"
+}

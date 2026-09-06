@@ -1,0 +1,30 @@
+# said-vs-done
+
+node_modules/
+
+# Secrets. The tool reads a project's client-facing text, and the projects it
+# is pointed at are real ones — an .env picked up from a scanned repository has
+# no business coming back here.
+.env
+.env.*
+!.env.example
+
+# Run snapshots. `--json` writes one per run; they hold the full text of every
+# promise found in someone's project, so they stay out of the history by
+# default. A baseline you deliberately want to keep goes in with `git add -f`.
+#
+# THE CONFIG FILE IS NOT A SNAPSHOT. `*.said-vs-done.json` also matched
+# `.said-vs-done.json` itself — in gitignore `*` matches the empty string — so
+# this project's own configuration was silently uncommittable, and the only
+# symptom was `git add` refusing a file nobody thought to check on.
+.said-vs-done/
+!.said-vs-done.json
+*-said-vs-done.json
+said-vs-done-run*.json
+
+# Editors and OS litter
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store

@@ -1,0 +1,12 @@
+# said-vs-done — what never goes into the published package.
+#
+# `files` in package.json is the allow-list and is the real control; this file
+# is the belt to its braces. A published tarball is not revocable, so the two
+# mechanisms are deliberately redundant.
+.env
+.env.*
+test/
+.github/
+.said-vs-done/
+.said-vs-done.json
+*.tgz

@@ -1,0 +1,443 @@
+{
+  "mutedCount": 0,
+  "version": 1,
+  "tool": "said-vs-done",
+  "detector": "say",
+  "args": [
+    "--config",
+    "test/fixtures/golden.config.json",
+    "--lang",
+    "en"
+  ],
+  "counts": {
+    "files": 2,
+    "sentences": 27,
+    "unknownLanguage": 0,
+    "promises": 17,
+    "sure": 12,
+    "edge": 5
+  },
+  "findings": [
+    {
+      "id": "31e1231aabe1",
+      "detector": "say",
+      "rule": "deletion",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 6,
+      "label": "[pl] deletion/i-now  Zgłoszenia kasuję po 30 dniach.",
+      "meta": {
+        "lang": "pl",
+        "area": "deletion",
+        "form": "i-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "kasuję",
+        "where": "i18n",
+        "key": "supportNote",
+        "occurrences": 3,
+        "sentence": "Zgłoszenia kasuję po 30 dniach.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "8e19d8ed19c6"
+    },
+    {
+      "id": "c75e8c4fbd3f",
+      "detector": "say",
+      "rule": "response",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 7,
+      "label": "[pl] response/i-now  Odpowiadam na adres Twojego konta.",
+      "meta": {
+        "lang": "pl",
+        "area": "response",
+        "form": "i-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "Odpowiadam",
+        "where": "i18n",
+        "key": "replyNote",
+        "occurrences": 1,
+        "sentence": "Odpowiadam na adres Twojego konta.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "91d208c8eabd"
+    },
+    {
+      "id": "9bd5263be9f8",
+      "detector": "say",
+      "rule": "transmission",
+      "file": "js/i18n-fixture.js",
+      "anchor": "heroLead",
+      "line": 8,
+      "label": "[pl] transmission/subject  Nagranie i tekst zostają na Twoim komputerze.",
+      "meta": {
+        "lang": "pl",
+        "area": "transmission",
+        "form": "subject",
+        "tier": "edge",
+        "negated": false,
+        "match": "zostają na Twoim",
+        "where": "i18n",
+        "key": "heroLead",
+        "occurrences": 1,
+        "sentence": "Nagranie i tekst zostają na Twoim komputerze.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "7988e30b0042"
+    },
+    {
+      "id": "1c08ceb5e10e",
+      "detector": "say",
+      "rule": "transmission",
+      "file": "js/i18n-fixture.js",
+      "anchor": "withApostrophe",
+      "line": 9,
+      "label": "[pl] transmission/we-will  Jeśli konto o tym adresie istnieje, wyślemy na niego link.",
+      "meta": {
+        "lang": "pl",
+        "area": "transmission",
+        "form": "we-will",
+        "tier": "sure",
+        "negated": false,
+        "match": "wyślemy",
+        "where": "i18n",
+        "key": "withApostrophe",
+        "occurrences": 1,
+        "sentence": "Jeśli konto o tym adresie istnieje, wyślemy na niego link.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "0030936da870"
+    },
+    {
+      "id": "a95e2e107d4f",
+      "detector": "say",
+      "rule": "encryption",
+      "file": "js/i18n-fixture.js",
+      "anchor": "withMarkup",
+      "line": 10,
+      "label": "[pl] encryption/we-now  Dane szyfrujemy przed zapisem.",
+      "meta": {
+        "lang": "pl",
+        "area": "encryption",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "szyfrujemy",
+        "where": "i18n",
+        "key": "withMarkup",
+        "occurrences": 1,
+        "sentence": "Dane szyfrujemy przed zapisem.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "932f98a3c884"
+    },
+    {
+      "id": "31e1231aabe1~2",
+      "detector": "say",
+      "rule": "deletion",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 13,
+      "label": "[en] deletion/i-now  I delete reports after 30 days.",
+      "meta": {
+        "lang": "en",
+        "area": "deletion",
+        "form": "i-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "delete",
+        "where": "i18n",
+        "key": "supportNote",
+        "occurrences": 1,
+        "sentence": "I delete reports after 30 days.",
+        "time": [
+          "30 days"
+        ],
+        "totality": []
+      },
+      "unitId": "8e19d8ed19c6"
+    },
+    {
+      "id": "c75e8c4fbd3f~2",
+      "detector": "say",
+      "rule": "response",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 14,
+      "label": "[en] response/i-now  I reply to your account address.",
+      "meta": {
+        "lang": "en",
+        "area": "response",
+        "form": "i-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "reply",
+        "where": "i18n",
+        "key": "replyNote",
+        "occurrences": 1,
+        "sentence": "I reply to your account address.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "91d208c8eabd"
+    },
+    {
+      "id": "9bd5263be9f8~2",
+      "detector": "say",
+      "rule": "transmission",
+      "file": "js/i18n-fixture.js",
+      "anchor": "heroLead",
+      "line": 15,
+      "label": "[en] transmission/subject/NEG  Your recording never leaves your computer.",
+      "meta": {
+        "lang": "en",
+        "area": "transmission",
+        "form": "subject",
+        "tier": "edge",
+        "negated": true,
+        "match": "never leaves",
+        "where": "i18n",
+        "key": "heroLead",
+        "occurrences": 1,
+        "sentence": "Your recording never leaves your computer.",
+        "time": [],
+        "totality": [
+          "never"
+        ]
+      },
+      "unitId": "7988e30b0042"
+    },
+    {
+      "id": "31e1231aabe1~3",
+      "detector": "say",
+      "rule": "deletion",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 20,
+      "label": "[de] deletion/i-now  Meldungen lösche ich nach 30 Tagen.",
+      "meta": {
+        "lang": "de",
+        "area": "deletion",
+        "form": "i-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "lösche",
+        "where": "i18n",
+        "key": "supportNote",
+        "occurrences": 1,
+        "sentence": "Meldungen lösche ich nach 30 Tagen.",
+        "time": [
+          "30 Tagen"
+        ],
+        "totality": []
+      },
+      "unitId": "8e19d8ed19c6"
+    },
+    {
+      "id": "c75e8c4fbd3f~3",
+      "detector": "say",
+      "rule": "response",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 21,
+      "label": "[de] response/i-now  Ich antworte an die Adresse Ihres Kontos.",
+      "meta": {
+        "lang": "de",
+        "area": "response",
+        "form": "i-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "antworte",
+        "where": "i18n",
+        "key": "replyNote",
+        "occurrences": 1,
+        "sentence": "Ich antworte an die Adresse Ihres Kontos.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "91d208c8eabd"
+    },
+    {
+      "id": "5ce0333a0635",
+      "detector": "say",
+      "rule": "sharing",
+      "file": "js/i18n-fixture.js",
+      "anchor": "inverted",
+      "line": 22,
+      "label": "[de] sharing/we-now/NEG  Ihre Daten geben wir nicht weiter.",
+      "meta": {
+        "lang": "de",
+        "area": "sharing",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": true,
+        "match": "geben wir nicht weiter",
+        "where": "i18n",
+        "key": "inverted",
+        "occurrences": 1,
+        "sentence": "Ihre Daten geben wir nicht weiter.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "e8790d9c01fe"
+    },
+    {
+      "id": "31e1231aabe1~4",
+      "detector": "say",
+      "rule": "deletion",
+      "file": "js/i18n-fixture.js",
+      "anchor": "supportNote",
+      "line": 25,
+      "label": "[es] deletion/we-now  Eliminamos los mensajes a los 30 días.",
+      "meta": {
+        "lang": "es",
+        "area": "deletion",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "Eliminamos",
+        "where": "i18n",
+        "key": "supportNote",
+        "occurrences": 1,
+        "sentence": "Eliminamos los mensajes a los 30 días.",
+        "time": [
+          "30 días"
+        ],
+        "totality": []
+      },
+      "unitId": "8e19d8ed19c6"
+    },
+    {
+      "id": "c75e8c4fbd3f~4",
+      "detector": "say",
+      "rule": "response",
+      "file": "js/i18n-fixture.js",
+      "anchor": "replyNote",
+      "line": 26,
+      "label": "[es] response/we-now  Respondemos a la dirección de tu cuenta.",
+      "meta": {
+        "lang": "es",
+        "area": "response",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "Respondemos",
+        "where": "i18n",
+        "key": "replyNote",
+        "occurrences": 1,
+        "sentence": "Respondemos a la dirección de tu cuenta.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "91d208c8eabd"
+    },
+    {
+      "id": "2d95a1199d18",
+      "detector": "say",
+      "rule": "transmission",
+      "file": "privacy.html",
+      "anchor": "nagranie nie opuszcza twojego komputera.",
+      "line": 6,
+      "label": "[pl] transmission/subject/NEG  Nagranie nie opuszcza Twojego komputera.",
+      "meta": {
+        "lang": "pl",
+        "area": "transmission",
+        "form": "subject",
+        "tier": "edge",
+        "negated": true,
+        "match": "nie opuszcza",
+        "where": "meta",
+        "key": null,
+        "occurrences": 2,
+        "sentence": "Nagranie nie opuszcza Twojego komputera.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "7294ec9b6229"
+    },
+    {
+      "id": "880baf33182a",
+      "detector": "say",
+      "rule": "sharing",
+      "file": "privacy.html",
+      "anchor": "nie udostępniamy twoich danych nikomu.",
+      "line": 20,
+      "label": "[pl] sharing/we-now/NEG  Nie udostępniamy Twoich danych nikomu.",
+      "meta": {
+        "lang": "pl",
+        "area": "sharing",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": true,
+        "match": "udostępniamy",
+        "where": "text",
+        "key": null,
+        "occurrences": 1,
+        "sentence": "Nie udostępniamy Twoich danych nikomu.",
+        "time": [],
+        "totality": []
+      },
+      "unitId": "6f2d62f2473c"
+    },
+    {
+      "id": "961dfba2282a",
+      "detector": "say",
+      "rule": "storage",
+      "file": "privacy.html",
+      "anchor": "hasło jest przechowywane wyłącznie w postaci skrótu.",
+      "line": 21,
+      "label": "[pl] storage/passive  Hasło jest przechowywane wyłącznie w postaci skrótu.",
+      "meta": {
+        "lang": "pl",
+        "area": "storage",
+        "form": "passive",
+        "tier": "edge",
+        "negated": false,
+        "match": "jest przechowywane",
+        "where": "text",
+        "key": null,
+        "occurrences": 1,
+        "sentence": "Hasło jest przechowywane wyłącznie w postaci skrótu.",
+        "time": [],
+        "totality": [
+          "wyłącznie"
+        ]
+      },
+      "unitId": "11b65afd1854"
+    },
+    {
+      "id": "9e7fa09dc828",
+      "detector": "say",
+      "rule": "encryption",
+      "file": "privacy.html",
+      "anchor": "hasło jest przechowywane wyłącznie w postaci skrótu.",
+      "line": 21,
+      "label": "[pl] encryption/passive  Hasło jest przechowywane wyłącznie w postaci skrótu.",
+      "meta": {
+        "lang": "pl",
+        "area": "encryption",
+        "form": "passive",
+        "tier": "edge",
+        "negated": false,
+        "match": "w postaci skrótu",
+        "where": "text",
+        "key": null,
+        "occurrences": 1,
+        "sentence": "Hasło jest przechowywane wyłącznie w postaci skrótu.",
+        "time": [],
+        "totality": [
+          "wyłącznie"
+        ]
+      },
+      "unitId": "11b65afd1854"
+    }
+  ],
+  "root": "test/fixtures/site"
+}

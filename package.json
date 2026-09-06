@@ -1,0 +1,27 @@
+{
+  "name": "said-vs-done",
+  "version": "0.1.0",
+  "description": "Reads the promises made to a customer and checks whether anything in the code keeps them. Said against done.",
+  "license": "MIT",
+  "author": "Aleksander Wojnarowicz",
+  "type": "module",
+  "bin": { "said-vs-done": "bin/said-vs-done.mjs" },
+  "files": ["bin", "src", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "say": "node bin/said-vs-done.mjs say",
+    "done": "node bin/said-vs-done.mjs done",
+    "golden": "node test/golden.mjs",
+    "known-answers": "node test/known-answers.mjs",
+    "resilience": "node test/resilience.mjs",
+    "amplify": "node test/amplify.mjs",
+    "lexicon": "node test/lexicon.mjs",
+    "negative": "node test/negative.mjs",
+    "scope": "node test/scope.mjs",
+    "evidence": "node test/evidence.mjs",
+    "lang-check": "node test/lang-check.mjs",
+    "readme": "node test/readme.mjs",
+    "test": "node test/all.mjs"
+  },
+  "keywords": ["promises", "compliance", "privacy-policy", "i18n", "static-analysis", "documentation-drift"]
+}
