@@ -332,8 +332,88 @@ and every documentation lie this project has told so far has been one of those.
 
 ---
 
+## Accuracy on other people's projects
+
+Measured on three open-source projects, none of them mine, each holding a privacy
+policy or terms inside the repository and the code that must keep it beside them:
+Zulip, Matomo and Joplin. The criterion was written down before anything was
+cloned — it is in `test/accuracy/criterion.md`, the material is pinned to a commit
+in `test/accuracy/material.md`, and every row read in the code is in
+`test/accuracy/results.md`.
+
+**Two true defects out of thirteen findings read in the code.** Both are in
+Joplin: a retention period documented as 99 days on the help page and as 100 days
+in the privacy policy served to users, which the code implements as 93; and an API
+document promising events are kept for 90 days where the code deletes them after
+30. Zulip produced eight findings and not one was real. Matomo produced none.
+
+    project   sentences read   sure promises   judgeable   findings   true
+    zulip             17 254             231       82.7%          8      0
+    matomo             2 080              17       58.8%          0      0
+    joplin            24 363              74       82.4%          0      0
+
+That is the default run. Where it returned nothing, the criterion required asking
+whether the zero was earned, and `--tier all` was the way to ask: Matomo then gave
+one finding, false; Joplin gave four, two of them the true defects above. Thirteen
+rows read in the code, eleven of them false alarms.
+
+`judgeable` is the share of first-person promises the tool reached any verdict on
+at all — the share whose subject matter had machinery in the searched code. That
+is the density this tool needs. Sentences read is not: a repository can hold
+twenty thousand and offer nothing to check.
+
+**The eleven false alarms have a single cause between them: the tool treats every
+number in a promise as a quantity the code must honour.** A disk-size
+recommendation, a count of call sites, two channel identifiers inside a URL, a
+child's age, a fourteen-day notice period, the "(2)" of an enumeration, a GitHub
+issue number, a year and an HTTP status code each became a promise the code was
+failing to keep. Across every run of all three projects the tool produced 34
+`no-witness` rows, and the reason on all 34 was that same one — no other reason
+fired once. The rule that produced every false alarm also produced both true
+defects, which is why it is still here and why it is the first thing to fix.
+Twenty-one of Zulip's rows were not read one by one; the protocol was the first
+ten per project, and Zulip's default run gave eight.
+
+Six of the eleven were not addressed to a customer at all. Pointing the tool at a
+whole repository feeds it developer documentation, changelogs and community
+pages, and it has no notion that a sysadmin guide is not a promise.
+
+### The two zeros
+
+**Matomo's zero is earned by what was read and silent about what was not.** Its
+PRIVACY.md is instructions to an administrator — "in this section we document how
+to protect the privacy of visitors" — and there is nothing in it to break. But
+Matomo's customer-facing copy is not in Markdown. It is 66 `lang/en.json` files,
+5 590 strings, 5 058 sentences, holding five first-person promises including "We
+will not share it with anyone else or use it for any other purpose." The collector
+reads .html, .js/.ts and .md, so it never opened one of them. For a project that
+keeps its copy in JSON this tool reports a confident nothing.
+
+**Joplin's zero was the tool declining to look.** Its privacy policy is written
+throughout with the product as the subject — "The Joplin applications do not send
+any data", "Joplin saves geo-location information" — so every sentence lands in
+the `edge` tier, and the default judges `sure` only. Both real defects found in
+this whole exercise were sitting in that tier. The default is defensible, and it
+hid the only true findings there were.
+
+Both true rows also arrived with worthless evidence: the tool cited TinyMCE
+language files and an eslint config as the places it had looked. The verdict was
+right and the citation was not, and only the verdict is tested.
+
+---
+
 ## Limitations
 
+- **Every number in a promise is treated as a quantity the code must honour.**
+  This produced all eleven false alarms in the accuracy measurement above, and
+  both true defects. Ages, notice periods, issue numbers, enumerators and years
+  are not retention periods, and nothing here knows the difference.
+- **It reads .html, .js/.ts and .md, and nothing else.** A project that keeps its
+  customer-facing copy in .json or .yml translation files gets a confident zero.
+  Matomo is such a project, and its promises were never opened.
+- **The default tier judges `sure` only, and impersonal policies are common.**
+  Joplin's entire privacy policy has the product as its subject, so the default
+  run had nothing to say about it. `--tier all` reaches those sentences.
 - **It does not know whether the code it found is ever reached.** A `delete`
   behind an `if (false)` counts as a witness. The verdict is "something here
   does this", not "this happens".
