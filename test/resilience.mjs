@@ -141,11 +141,29 @@ scenario('unreadable page', 'read permission denied',
     const d = site('locked');
     const target = path.join(d, 'locked.html');
     fs.copyFileSync(path.join(d, 'privacy.html'), target);
-    const who = process.env.USERNAME || process.env.USER;
-    if (!who) return { skip: 'no USERNAME to deny' };
-    try { execFileSync('icacls', [target, '/deny', who + ':(R)'], { stdio: 'ignore' }); }
-    catch (e) { return { skip: 'icacls failed: ' + String(e.message).slice(0, 60) }; }
-    try { fs.readFileSync(target); return { skip: 'icacls /deny did not actually block reading' }; }
+    // TWO PLATFORMS, ONE SCENARIO, AND CI IS WHY.
+    //
+    // This was `icacls` and nothing else. `icacls` is a Windows program, so on
+    // the Linux runner it failed, the scenario skipped, the whole layer exited
+    // 2 — and the layer that exists to prove this tool fails loudly was the one
+    // thing continuous integration never ran. It said so in the run summary
+    // rather than passing quietly, which is the behaviour working exactly as
+    // intended; this is the fix it asked for.
+    if (process.platform === 'win32') {
+      const who = process.env.USERNAME || process.env.USER;
+      if (!who) return { skip: 'no USERNAME to deny' };
+      try { execFileSync('icacls', [target, '/deny', who + ':(R)'], { stdio: 'ignore' }); }
+      catch (e) { return { skip: 'icacls failed: ' + String(e.message).slice(0, 60) }; }
+    } else {
+      try { fs.chmodSync(target, 0); }
+      catch (e) { return { skip: 'chmod failed: ' + String(e.message).slice(0, 60) }; }
+    }
+    // NOT A FORMALITY. Mode bits do not stop root, and an administrator can
+    // read through a deny ACE. If the file is still readable the scenario has
+    // not been set up, and saying so is the only honest outcome — a run that
+    // reported "failed loudly" here without the file being locked would be
+    // this suite telling itself what it wants to hear.
+    try { fs.readFileSync(target); return { skip: 'the file is still readable; the deny did not take' }; }
     catch { return ['say', d]; }
   },
   ['locked.html', 'EPERM', 'EACCES', 'Cannot read'],

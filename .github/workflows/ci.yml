@@ -72,9 +72,9 @@ jobs:
         node: ['18', '24']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
 
@@ -156,9 +156,9 @@ jobs:
               grep -E '^  SKIP ' known.log >> "$GITHUB_STEP_SUMMARY" || echo "(none reported)" >> "$GITHUB_STEP_SUMMARY"
               summary '```'
               summary ""
-              summary "All three known answers need two private checkouts, \`SVD_WEB\` and"
-              summary "\`SVD_APP\`, which this runner does not have and will not get. The other"
-              summary "nine layers are self-contained and did pass. See \`test/known-answers.mjs\`."
+              summary "All three known answers need two private checkouts, **SVD_WEB** and"
+              summary "**SVD_APP**, which this runner does not have and will not get. Every other"
+              summary "layer listed above as passing is self-contained. See test/known-answers.mjs"
               ;;
             *)
               echo "::error title=Tests failed::npm test exited $CODE on node $NODE."
