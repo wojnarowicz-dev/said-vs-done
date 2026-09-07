@@ -479,13 +479,21 @@ and both were found by the same rule that produced every false alarm.
 
 ## Limitations
 
+- **A promise translated is a promise counted again, and that inflates every
+  number in this file.** Language is part of a promise's identity, so one
+  commitment shipped in thirty locales is thirty promises, and when it is unkept
+  it is thirty findings. Every count in the measurements above — promises,
+  `covered`, `no-witness` — counts rows rather than distinct commitments, and
+  the distance between the two is however many languages the project ships.
+  Fourteen of the third measurement's sixteen rows were two sentences. Nothing
+  in the tool collapses them, and no number it prints should be read as a count
+  of things a maintainer would have to fix.
 - **The venue test knows the repository, not the promise.** It asks whether this
   repository contains deletion machinery, not whether it contains the machinery
   for THIS deletion. A client repository whose server lives elsewhere therefore
   gets `no-witness` where `elsewhere` is right — fourteen rows of the third
-  measurement.
-- **A promise translated is a promise counted again.** Language is part of a
-  promise's identity, so one commitment in thirty locales is thirty findings.
+  measurement, and the same failure `--code` was added to prevent, one level
+  further down.
 - **Only durations are checked against the code.** A number counts as a quantity
   the code must honour when a unit of time is attached to it, because that is
   the only kind of quantity a witness can be asked about. "We keep at most three
