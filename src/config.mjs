@@ -36,6 +36,14 @@ export const DEFAULT_EXCLUDE = [
   // written. '**/out/**' above catches that one; these are the other shapes the
   // same mistake takes.
   '**/main_extracted/**', '**/vendor/**', '**/*.min.js', '**/*.bundle.js',
+  // ONCE .json IS READ, THESE ARE PROSE. A lock file is a hundred thousand
+  // strings of versions and hashes; a compiler config is machine settings; and
+  // this tool's own run snapshots hold every promise it has ever found,
+  // verbatim, so a second run over the same directory would read its own output
+  // back in and count each promise twice. That last one is not hypothetical —
+  // it is the build-output mistake above, wearing the tool's own name.
+  '**/package-lock.json', '**/composer.lock', '**/*.lock.json',
+  '**/tsconfig*.json', '**/.said-vs-done/**', '**/.said-vs-done.json',
 ];
 
 export const CONFIG_NAME = '.said-vs-done.json';

@@ -312,17 +312,17 @@ at all.
 
 ### The README gate
 
-<!-- svd:claim name=fixture.promises value=17 -->
-<!-- svd:claim name=fixture.sure value=12 -->
+<!-- svd:claim name=fixture.promises value=21 -->
+<!-- svd:claim name=fixture.sure value=16 -->
 <!-- svd:claim name=fixture.edge value=5 -->
-<!-- svd:claim name=fixture.covered value=8 -->
+<!-- svd:claim name=fixture.covered value=11 -->
 
 A tool that checks whether a project's sentences are backed by its code, and
 cannot be pointed at its own documentation, has not understood its own premise.
 
 Every number in this file is tagged in the Markdown and re-derived from the
 running tool by `test/readme.mjs`. The fixture project in `test/fixtures/`
-yields **17 promises — 12 `sure`, 5 `edge` — of which 8 are `covered`** when
+yields **21 promises — 16 `sure`, 5 `edge` — of which 11 are `covered`** when
 both fixture roots are given. Every command shown above is executed. Every flag,
 file and verdict named here must exist.
 
@@ -386,8 +386,9 @@ to protect the privacy of visitors" — and there is nothing in it to break. But
 Matomo's customer-facing copy is not in Markdown. It is 66 `lang/en.json` files,
 5 590 strings, 5 058 sentences, holding five first-person promises including "We
 will not share it with anyone else or use it for any other purpose." The collector
-reads .html, .js/.ts and .md, so it never opened one of them. For a project that
-keeps its copy in JSON this tool reports a confident nothing.
+read .html, .js/.ts and .md at the time, so it never opened one of them. For a
+project that keeps its copy in JSON this tool reported a confident nothing.
+**It now reads .json**, and the two changes below are what that produced.
 
 **Joplin's zero was the tool declining to look.** Its privacy policy is written
 throughout with the product as the subject — "The Joplin applications do not send
@@ -400,17 +401,99 @@ Both true rows also arrived with worthless evidence: the tool cited TinyMCE
 language files and an eslint config as the places it had looked. The verdict was
 right and the citation was not, and only the verdict is tested.
 
+
+### What the measurement changed
+
+Two things, and the measurement is the argument for both.
+
+**The collector now reads .json.** Matomo's five promises were not a bad choice
+of project; they were a file filter reported as an absence. A translation table
+is where a product actually says what it does to a customer, and most products
+keep theirs in JSON. The scanner is hand-written rather than `JSON.parse`, so
+every promise still carries the line it came from.
+
+**A number counts only when a unit of time is attached to it.** Re-run on the
+same three repositories, the narrowed rule removed all eleven false alarms and
+kept both true findings: Zulip's eight went to none, Matomo's one to none, and
+Joplin's four to exactly the two real ones. Zulip at tier `all` fell from 29 rows
+to five. The rule that produced every false alarm was also the only rule that
+ever produced a true one, so it was narrowed rather than dropped, and what it can
+no longer check is written down under Limitations rather than quietly lost.
+
 ---
+
+### The third measurement, on new material after the changes
+
+Same criterion, three projects that had nothing to do with the first three:
+Outline, immich and bitwarden/clients. The default tier returned nothing on all
+three, so each was raised as the criterion requires.
+
+    project   promises   covered   no-witness   inspect   elsewhere
+    outline         94        85            0         5           4
+    immich         192       170            2         6          14
+    clients        363       300           14        15          34
+
+**Zero true defects out of sixteen rows read in the code.** No project keeps a
+policy document any more — of the candidates probed, Mattermost's
+`PRIVACY_POLICY.md` holds a URL, BookWyrm's renders a database field and
+Synapse's template reads "All your base are belong to us" — so the material rule
+was widened to client-facing copy, which is what the .json change had just made
+readable. It worked: every row below came out of a translation table that the
+previous version could not open.
+
+The sixteen rows are four distinct promises, and they name two more faults.
+
+**The venue test is too coarse, and it is the original bug in a new disguise.**
+Fourteen rows are Bitwarden's "Items you delete will appear here and be
+permanently deleted after 30 days" and "Unclaimed domains are removed after 7
+days". Both are server-side retention periods, and Bitwarden's server is a
+different repository: `bitwarden/clients` has no scheduled jobs at all. The
+right verdict is `elsewhere`. The tool said `no-witness`, because the venue test
+asks "does this repository contain deletion machinery" — and it does, it deletes
+ciphers and clears local storage — where the question that matters is "does it
+contain the machinery for THIS deletion". `--code` fixed naming the right
+repository. Naming the right repository for a given promise is not fixed.
+
+**One promise is many findings.** Those fourteen rows are two promises. A
+promise's identity includes its language, so a commitment translated into thirty
+languages is thirty findings, and a trailing full stop makes another. "The first
+ten findings" on Bitwarden means ten translations of one sentence.
+
+immich's two rows are one sentence counted under two areas, and the sentence
+describes Apple Photos: "They will be in Recently Deleted for 30 days." immich
+neither implements that nor could.
+
+Outline's zero is earned, and was checked rather than assumed: the only
+duration-bearing sentence in its copy is "This link will expire in 24 hours",
+and the expiry machinery is in the same repository. Outline does have 60-day and
+90-day permanent deleters in `server/commands`, but no sentence tells a customer
+about them, so there is nothing to check and nothing is the right answer.
+
+**Across three measurements: two true defects in twenty-nine rows read in the
+code.** Both were Joplin's, both were documentation drift on a retention period,
+and both were found by the same rule that produced every false alarm.
+
+---
+
+
 
 ## Limitations
 
-- **Every number in a promise is treated as a quantity the code must honour.**
-  This produced all eleven false alarms in the accuracy measurement above, and
-  both true defects. Ages, notice periods, issue numbers, enumerators and years
-  are not retention periods, and nothing here knows the difference.
-- **It reads .html, .js/.ts and .md, and nothing else.** A project that keeps its
-  customer-facing copy in .json or .yml translation files gets a confident zero.
-  Matomo is such a project, and its promises were never opened.
+- **The venue test knows the repository, not the promise.** It asks whether this
+  repository contains deletion machinery, not whether it contains the machinery
+  for THIS deletion. A client repository whose server lives elsewhere therefore
+  gets `no-witness` where `elsewhere` is right — fourteen rows of the third
+  measurement.
+- **A promise translated is a promise counted again.** Language is part of a
+  promise's identity, so one commitment in thirty locales is thirty findings.
+- **Only durations are checked against the code.** A number counts as a quantity
+  the code must honour when a unit of time is attached to it, because that is
+  the only kind of quantity a witness can be asked about. "We keep at most three
+  backups" is therefore not checked, and comes back `covered` on the strength of
+  the backup routine alone.
+- **It reads .html, .js/.ts, .md and .json, and nothing else.** A project that
+  keeps its customer-facing copy in .yml or .po translation files, or in server
+  templates like .erb or .blade.php, still gets a confident zero.
 - **The default tier judges `sure` only, and impersonal policies are common.**
   Joplin's entire privacy policy has the product as its subject, so the default
   run had nothing to say about it. `--tier all` reaches those sentences.

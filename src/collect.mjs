@@ -31,8 +31,14 @@ import path from 'node:path';
 import { readSource } from './input.mjs';
 import { guessLanguage } from './promise.mjs';
 
-const TEXT_FILE = /\.(html?|js|mjs|cjs|ts|mts|md)$/i;
+const TEXT_FILE = /\.(html?|js|mjs|cjs|ts|mts|md|json)$/i;
 const TRANSLATION_FILE = /(i18n|l10n|locale|messages|translations?)/i;
+
+// The language codes a translation table names its sections with. Wider than
+// the four the dictionary knows on purpose: a `fr` section read as French
+// yields no promises, which is right, whereas a `fr` section left unlabelled
+// gets guessed at and French guessed from function words comes out Spanish.
+const LANG_CODE = /^(pl|en|de|es|fr|it|cs|sk|uk|ru|nl|pt)([-_][A-Za-z]{2})?$/i;
 
 // ---------------------------------------------------------------- entities
 //
@@ -173,6 +179,100 @@ export function jsStrings(src) {
   return out;
 }
 
+// ---------------------------------------------------------------- JSON
+//
+// THE FORMAT THIS TOOL COULD NOT READ, AND THE MEASUREMENT THAT FOUND IT.
+// Pointed at Matomo, the collector reported nothing and exited as though the
+// question had been settled. Matomo's PRIVACY.md really does hold no promises —
+// it is administrator documentation. What the run never said is that Matomo
+// keeps its customer-facing copy in 66 `lang/en.json` files: 5590 strings,
+// 5058 sentences, among them "We will not share it with anyone else or use it
+// for any other purpose." Not one of them was opened.
+//
+// That is the tool's own silent zero — a confident count produced by a file
+// filter, not by an absence of promises — and it is the same failure the
+// unreadable-file list was added to prevent.
+//
+// A SCANNER RATHER THAN JSON.parse, for one reason: LINE NUMBERS. A parsed
+// object has no positions, and a finding that cannot say which line it came
+// from cannot be checked by the person reading the report. The scanner also
+// survives the trailing commas and comments that real translation files
+// accumulate, where JSON.parse would throw and take the whole file with it.
+export function jsonStrings(src) {
+  const out = [];
+  let i = 0, line = 1, depth = 0;
+  let lang = null, langDepth = -1;
+  let pendingKey = null, pendingLine = 0;
+
+  const readString = () => {
+    let v = '';
+    i++;                                        // past the opening quote
+    while (i < src.length) {
+      const c = src[i];
+      if (c === '\\') {
+        const n = src[i + 1];
+        if (n === 'u') {
+          const hex = src.slice(i + 2, i + 6);
+          v += /^[0-9a-fA-F]{4}$/.test(hex) ? String.fromCharCode(parseInt(hex, 16)) : '';
+          i += 6;
+          continue;
+        }
+        v += n === 'n' ? '\n' : n === 't' ? ' ' : n === undefined ? '' : n;
+        i += 2;
+        continue;
+      }
+      if (c === '"') { i++; break; }
+      if (c === '\n') line++;                   // invalid JSON, common in the wild
+      v += c; i++;
+    }
+    return v;
+  };
+
+  while (i < src.length) {
+    const c = src[i];
+    if (c === '\n') { line++; i++; continue; }
+    if (c === '{' || c === '[') { depth++; i++; continue; }
+    if (c === '}' || c === ']') {
+      if (depth === langDepth) { lang = null; langDepth = -1; }
+      depth--; pendingKey = null; i++; continue;
+    }
+    if (c === ',') { pendingKey = null; i++; continue; }
+    if (c !== '"') { i++; continue; }
+
+    const startLine = line;
+    const value = readString();
+
+    // IN JSON THE KEY IS A STRING TOO, which is the whole reason the JavaScript
+    // scanner cannot be reused here: it recognises a key by an unquoted
+    // identifier before a colon, sees two quoted strings instead, and emits
+    // neither. What follows the closing quote decides which this one was.
+    if (/^\s*:/.test(src.slice(i, i + 40))) {
+      pendingKey = value;
+      pendingLine = startLine;
+      if (LANG_CODE.test(value) && lang === null && /^\s*:\s*\{/.test(src.slice(i, i + 60))) {
+        lang = value.slice(0, 2).toLowerCase();
+        langDepth = depth + 1;
+      }
+      continue;
+    }
+    out.push({ key: pendingKey, line: pendingLine || startLine, text: value, lang });
+  }
+  return out;
+}
+
+// THE LANGUAGE OF A TRANSLATION FILE IS USUALLY IN ITS PATH, not in its
+// contents: `plugins/CoreHome/lang/en.json` says English before a single
+// string is read. Guessing it from the text instead would be a second-best
+// answer to a question the path has already answered.
+const JSON_LANG_PATH =
+  /(?:^|\/)[_.]?(?:lang|langs|locales?|i18n|l10n|translations?|messages)\/([A-Za-z]{2}(?:[-_][A-Za-z]{2})?)(?:\/|\.json$)|(?:^|\/)([A-Za-z]{2}(?:[-_][A-Za-z]{2})?)\.json$/;
+
+export function jsonLanguage(rel) {
+  const m = JSON_LANG_PATH.exec(rel);
+  const code = m && (m[1] || m[2]);
+  return code && LANG_CODE.test(code) ? code.slice(0, 2).toLowerCase() : null;
+}
+
 // ---------------------------------------------------------------- sentences
 export const stripTags = s => decode(String(s).replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim();
 
@@ -250,6 +350,20 @@ export function collect(root, cfg) {
         const t = para.replace(/[#*_`>|-]/g, ' ').replace(/\s+/g, ' ').trim();
         if (t.length >= 12) units.push({ file: rel, line, text: t, lang: null, key: null, where: 'md' });
         line += (para.match(/\n/g) || []).length + 2;
+      }
+    } else if (/\.json$/i.test(f)) {
+      // A .json file is a translation table when its path says so; anything
+      // else is a data file that happens to contain prose, and it gets the
+      // higher floor for the same reason a hard-coded string does.
+      const pathLang = jsonLanguage(rel);
+      const table = pathLang !== null || TRANSLATION_FILE.test(rel);
+      for (const u of jsonStrings(src)) {
+        const long = table ? u.text.length >= 12 : (u.text.length >= 25 && /\s/.test(u.text.trim()));
+        if (long)
+          units.push({
+            file: rel, line: u.line, text: u.text,
+            lang: u.lang || pathLang, key: u.key, where: table ? 'i18n' : 'json',
+          });
       }
     } else if (TRANSLATION_FILE.test(rel)) {
       for (const u of jsStrings(src))

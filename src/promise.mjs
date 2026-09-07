@@ -388,6 +388,71 @@ const QUALIFIERS = {
   },
 };
 
+// ---------------------------------------------------------------- durations
+//
+// WHICH NUMBER IN A SENTENCE IS A QUANTITY THE CODE MUST HONOUR.
+//
+// Every number was, and it produced every false alarm in the accuracy
+// measurement: a recommended disk size, a count of call sites, two chat channel
+// identifiers inside a URL, a child's age, the "(2)" of an enumeration, a
+// GitHub issue number, a year and an HTTP status code each became a promise the
+// code was failing to keep. Eleven rows, one cause.
+//
+// A number counts here only when a unit of TIME is attached to it. That is not
+// a trick to make the numbers look better — it is the only kind of quantity
+// this tool can check. A witness is a delete, a send, a retention constant, and
+// what the code can be asked is "does anything here know about ninety days".
+// Nothing here can check that a disk is 50 GB.
+//
+// The cost is real and worth stating: "we keep at most three backups" is no
+// longer checked against the code, and comes back `covered` on the strength of
+// the backup routine alone. A quantity the tool cannot verify is better left
+// unclaimed than asserted from a digit.
+export const DURATION = {
+  pl: /\d+\s*(?:sekund\w*|minut\w*|godzin\w*|dni\w*|dób|dob\w*|tygodn\w*|miesi[ąę]c\w*|lat\w*|rok\w*)/gi,
+  en: /\d+\s*(?:seconds?|minutes?|hours?|days?|weeks?|months?|years?)/gi,
+  de: /\d+\s*(?:Sekunden?|Minuten?|Stunden?|Tagen?|Tage|Wochen?|Monaten?|Monate|Jahren?|Jahre)/gi,
+  es: /\d+\s*(?:segundos?|minutos?|horas?|d[ií]as?|semanas?|mes(?:es)?|a[ñn]os?)/gi,
+};
+
+// TWO IDIOMS WHERE A DURATION IS STILL NOT A RETENTION PERIOD, both of which
+// survived the rule above in the measurement and had to be named:
+//
+//   an age            "a child under thirteen (13) years of age"
+//   a lead time       "we will provide notice at least 14 days in advance"
+//
+// The second is a commitment about when a human will be told something, not a
+// period any code enforces, and a tool that reports it as an unkept promise is
+// asking the repository a question it cannot answer.
+export const NOT_A_QUANTITY = {
+  pl: /^\s*(?:z\s+wyprzedzeniem|wcześniej\s+niż|roku\s+życia|życia\b)/i,
+  en: /^\s*(?:of\s+age\b|old\b|in\s+advance\b|beforehand\b|(?:of\s+)?(?:advance|prior)\s+notice\b)/i,
+  de: /^\s*(?:im\s+Voraus\b|vorab\b|alt\b|Lebensjahr)/i,
+  es: /^\s*(?:de\s+antelación\b|con\s+antelación\b|de\s+edad\b)/i,
+};
+
+/**
+ * The numbers a promise commits its code to: durations only, and not the two
+ * idioms above. Returns strings, because they are matched against source text.
+ */
+export function quantities(sentence, lang) {
+  const re = DURATION[lang];
+  if (!re) return [];
+  const guard = NOT_A_QUANTITY[lang];
+  const text = String(sentence || '');
+  const out = new Set();
+  re.lastIndex = 0;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    if (m[0].length === 0) { re.lastIndex++; continue; }
+    const after = text.slice(m.index + m[0].length, m.index + m[0].length + 24);
+    if (guard && guard.test(after)) continue;
+    const n = (m[0].match(/\d+/) || [])[0];
+    if (n && +n > 1) out.add(n);
+  }
+  return [...out];
+}
+
 // ---------------------------------------------------------------- compiled tables
 //
 // Built once at load. The Polish table becomes one regex per (area, form); the

@@ -101,3 +101,63 @@ caught by the resilience layer.
 Counting the excursions, the three projects produced 34 distinct `no-witness`
 rows. The reason on all 34 is `witnessWithoutTheNumber`. No other reason fired
 once.
+
+---
+
+# Third measurement, after the two changes
+
+Same criterion, new material, and the collector now reads .json. The default
+tier returned nothing on all three, so each was raised to `all` as the criterion
+requires.
+
+    project   promises  covered  no-witness  inspect  elsewhere
+    outline         94       85           0        5          4
+    immich         192      170           2        6         14
+    clients        363      300          14       15         34
+
+Sixteen rows. **Zero true defects.** The sixteen rows are four distinct promises.
+
+## Bitwarden clients, 14 rows, 2 promises, all false
+
+ 1  "Items you delete will appear here and be permanently deleted after 30 days"
+    and its translations — 12 rows.
+ 2  "Unclaimed domains are removed after 7 days" and its Polish translation —
+    2 rows.
+
+Both are server-side retention periods. Bitwarden's server is a separate
+repository; `bitwarden/clients` holds no scheduled jobs at all — grep finds no
+cron, no background deletion, and the only "30 days" in its TypeScript is an
+unrelated Send expiry preset in `send-controls.component.ts`. The right verdict
+is `elsewhere`. The tool said `no-witness`.
+
+THE VENUE TEST IS TOO COARSE, and this is the same failure the tool was built to
+avoid wearing a new disguise. It asks "does this repository contain deletion
+machinery" and the clients repo does — it deletes ciphers, it clears local
+storage. It cannot ask "does this repository contain the machinery for THIS
+deletion", which is the question that matters. Naming the right repository was
+fixed by `--code`; naming the right repository FOR A GIVEN PROMISE is not.
+
+## immich, 2 rows, 1 sentence, false
+
+`i18n/pl.json:854`, key `delete_dialog_alert_local_ios`. The English original:
+"These items will be deleted from Photos, but will still be available on the
+Immich server. They will be in Recently Deleted for 30 days." That is a
+description of Apple Photos' own Recently Deleted album. immich neither
+implements it nor could. Flagged twice, once under `deletion` and once under
+`storage`.
+
+## outline, 0 rows, and the zero is earned
+
+94 promises, 85 covered, none accused. Checked rather than assumed: the only
+duration-bearing customer copy in outline's translation table is "This link will
+expire in 24 hours", and the expiry machinery is in the same repository. Outline
+does have 60-day and 90-day permanent deleters in `server/commands`, but no
+sentence anywhere tells a customer about them — so there is nothing to check,
+and reporting nothing is right.
+
+## A third defect this measurement exposed: one promise, many rows
+
+Fourteen rows were two promises. The identity of a promise includes its
+language, so a commitment translated into thirty languages is thirty findings,
+and a trailing full stop makes a further one. "First ten findings" on Bitwarden
+means ten translations of one sentence, which is not ten findings.

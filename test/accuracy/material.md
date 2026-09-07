@@ -40,3 +40,28 @@ to catch.
   PrivateBin   same
   umami        same
   element-web  only a test fixture pretending to be a policy
+
+---
+
+# Second batch, for the third measurement
+
+    outline/outline     fcfab6452c59bb7bc96417d6a00db1b0b336e038   2026-09-07
+    immich-app/immich   bbd1e6d381aa7f6bd90b1974a9831fd5c0c9ba14   2026-09-07
+    bitwarden/clients   07ac2aa903459ea8e1c18e3295b765be0bc3585f   2026-09-07
+
+Chosen under the amended material rule in criterion.md: client-facing copy in a
+format the collector reads, with the implementing code in the same repository.
+
+  outline   server, client and copy in one repository, so the venue test is fair
+  immich    the same shape, and a trash-retention period carrying a number, which
+            is what the narrowed duration rule is now supposed to check
+  clients   strong first-person promises, copy in locales/*/messages.json, and
+            the SERVER IN A SEPARATE REPOSITORY. Included deliberately: the tool
+            should answer `elsewhere` here rather than accuse.
+
+Why not a policy document this time: there was almost nothing to choose from.
+Mattermost's PRIVACY_POLICY.md holds a URL, BookWyrm's privacy.html renders a
+database field, PostHog's legal_documents is a document-signing integration, and
+Synapse's privacy template reads "All your base are belong to us". A project
+that keeps real first-person policy prose in its repository is rare; Zulip and
+Joplin were the exceptions, not the pattern.

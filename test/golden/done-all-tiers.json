@@ -15,11 +15,11 @@
     "en"
   ],
   "counts": {
-    "covered": 8,
+    "covered": 11,
     "no-witness": 1,
     "inspect": 0,
-    "elsewhere": 8,
-    "promisesSure": 17,
+    "elsewhere": 9,
+    "promisesSure": 21,
     "codeFiles": 2,
     "codeRoots": [
       "site",
@@ -410,6 +410,126 @@
         ]
       },
       "unitId": "a63ad60b614e"
+    },
+    {
+      "id": "54c74fe81d4f",
+      "detector": "done",
+      "rule": "covered",
+      "file": "lang/en.json",
+      "anchor": "accountDelete",
+      "line": 2,
+      "label": "covered    [en] deletion  We delete your account and everything in it within 30 days of your request.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witnessWithTheNumber",
+        "area": "deletion",
+        "lang": "en",
+        "negated": false,
+        "tier": "sure",
+        "key": "accountDelete",
+        "numbers": [
+          "30"
+        ],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "We delete your account and everything in it within 30 days of your request.",
+        "evidence": [
+          "app/migrations.sql:10"
+        ]
+      },
+      "unitId": "32e587d0b026"
+    },
+    {
+      "id": "913e26a2ebed",
+      "detector": "done",
+      "rule": "elsewhere",
+      "file": "lang/en.json",
+      "anchor": "noSale",
+      "line": 3,
+      "label": "elsewhere  [en] sharing/NEG  We never sell your data to anyone.",
+      "meta": {
+        "verdict": "elsewhere",
+        "why": "noVenueInRepo",
+        "area": "sharing",
+        "lang": "en",
+        "negated": true,
+        "tier": "sure",
+        "key": "noSale",
+        "numbers": [],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "We never sell your data to anyone.",
+        "evidence": []
+      },
+      "unitId": "357891a99329"
+    },
+    {
+      "id": "f2df51c7a928",
+      "detector": "done",
+      "rule": "covered",
+      "file": "messages.json",
+      "anchor": "accountDelete",
+      "line": 3,
+      "label": "covered    [pl] deletion  Twoje konto i wszystko w nim kasujemy w ciągu 30 dni od zgłoszenia.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witnessWithTheNumber",
+        "area": "deletion",
+        "lang": "pl",
+        "negated": false,
+        "tier": "sure",
+        "key": "accountDelete",
+        "numbers": [
+          "30"
+        ],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Twoje konto i wszystko w nim kasujemy w ciągu 30 dni od zgłoszenia.",
+        "evidence": [
+          "app/migrations.sql:10"
+        ]
+      },
+      "unitId": "773da6f65f5a"
+    },
+    {
+      "id": "f2df51c7a928~2",
+      "detector": "done",
+      "rule": "covered",
+      "file": "messages.json",
+      "anchor": "accountDelete",
+      "line": 6,
+      "label": "covered    [de] deletion  Wir löschen Ihr Konto innerhalb von 30 Tagen.",
+      "meta": {
+        "verdict": "covered",
+        "why": "witnessWithTheNumber",
+        "area": "deletion",
+        "lang": "de",
+        "negated": false,
+        "tier": "sure",
+        "key": "accountDelete",
+        "numbers": [
+          "30"
+        ],
+        "caveat": null,
+        "searched": [
+          "site",
+          "app"
+        ],
+        "sentence": "Wir löschen Ihr Konto innerhalb von 30 Tagen.",
+        "evidence": [
+          "app/migrations.sql:10"
+        ]
+      },
+      "unitId": "773da6f65f5a"
     },
     {
       "id": "8b6e996984eb",

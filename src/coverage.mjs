@@ -56,6 +56,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { quantities } from './promise.mjs';
 
 // ---------------------------------------------------------------- what counts as code
 //
@@ -289,9 +290,13 @@ export function indexCode(roots, { explicit = false } = {}) {
 // "deleted after 90 days" is kept by code that knows about 90, and a delete
 // with no interval is a different promise. The numbers come out of the sentence
 // itself, which is why stage one kept the qualifier text instead of a boolean.
+//
+// IT USED TO BE EVERY NUMBER IN THE SENTENCE, and that single line produced all
+// eleven false alarms the accuracy measurement turned up — see `quantities` in
+// promise.mjs for the list and the reasoning. It also produced both true
+// findings, which is why the rule was narrowed rather than removed.
 function numbersIn(promise) {
-  const text = [promise.sentence, ...(promise.qualifiers?.time || [])].join(' ');
-  return [...new Set((text.match(/\b\d{1,4}\b/g) || []))].filter(n => +n > 1);
+  return quantities(promise.sentence, promise.lang);
 }
 
 function numberWitness(index, area, numbers) {

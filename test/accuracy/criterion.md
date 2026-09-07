@@ -67,3 +67,28 @@ the run; the check is a `ls`, not a scan.
   with an answer to whether the zero is earned or whether the tool failed to
   look where it should have.
 * Zero true defects is a result and goes in the README with its reason.
+
+---
+
+## Amendment, before the third measurement
+
+Recorded before the second batch of material was cloned. The criterion above is
+unchanged; what changes is what counts as admissible material, and why.
+
+The original rule asked for a policy or terms DOCUMENT in the repository. Looking
+for a second batch, that rule turned out to describe almost nothing: of the
+candidates probed, Mattermost's `PRIVACY_POLICY.md` contains a URL and nothing
+else, BookWyrm's `privacy.html` renders a field out of the database, PostHog's
+`legal_documents` is an integration with a signing service, and Synapse's privacy
+template reads "All your base are belong to us". Zulip and Joplin, both already
+measured, were the exceptions rather than the rule.
+
+So the material rule is widened to what stage one was always about: CLIENT-FACING
+COPY in a format the collector reads, with the implementing code in the same
+repository. A translation table is such copy — it is where a product actually
+says what it does to a customer — and since the collector now reads .json, that
+is most products.
+
+Everything else stands: the denominator is `no-witness`, the first ten rows per
+project are read in the code, unverifiable rows count as noise, and zero is a
+result that goes in the README with its reason.

@@ -10,11 +10,11 @@
     "en"
   ],
   "counts": {
-    "files": 2,
-    "sentences": 27,
+    "files": 4,
+    "sentences": 31,
     "unknownLanguage": 0,
-    "promises": 17,
-    "sure": 12,
+    "promises": 21,
+    "sure": 16,
     "edge": 5
   },
   "findings": [
@@ -337,6 +337,112 @@
         "totality": []
       },
       "unitId": "91d208c8eabd"
+    },
+    {
+      "id": "fff5c3f1c493",
+      "detector": "say",
+      "rule": "deletion",
+      "file": "lang/en.json",
+      "anchor": "accountDelete",
+      "line": 2,
+      "label": "[en] deletion/we-now  We delete your account and everything in it within 30 days of your request.",
+      "meta": {
+        "lang": "en",
+        "area": "deletion",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "delete",
+        "where": "i18n",
+        "key": "accountDelete",
+        "occurrences": 1,
+        "sentence": "We delete your account and everything in it within 30 days of your request.",
+        "time": [
+          "within 30 days"
+        ],
+        "totality": []
+      },
+      "unitId": "efa3b5451277"
+    },
+    {
+      "id": "89014ee63a25",
+      "detector": "say",
+      "rule": "sharing",
+      "file": "lang/en.json",
+      "anchor": "noSale",
+      "line": 3,
+      "label": "[en] sharing/we-now/NEG  We never sell your data to anyone.",
+      "meta": {
+        "lang": "en",
+        "area": "sharing",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": true,
+        "match": "sell",
+        "where": "i18n",
+        "key": "noSale",
+        "occurrences": 1,
+        "sentence": "We never sell your data to anyone.",
+        "time": [],
+        "totality": [
+          "never"
+        ]
+      },
+      "unitId": "c49e22971032"
+    },
+    {
+      "id": "dc3d852b5b0b",
+      "detector": "say",
+      "rule": "deletion",
+      "file": "messages.json",
+      "anchor": "accountDelete",
+      "line": 3,
+      "label": "[pl] deletion/we-now  Twoje konto i wszystko w nim kasujemy w ciągu 30 dni od zgłoszenia.",
+      "meta": {
+        "lang": "pl",
+        "area": "deletion",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "kasujemy",
+        "where": "i18n",
+        "key": "accountDelete",
+        "occurrences": 1,
+        "sentence": "Twoje konto i wszystko w nim kasujemy w ciągu 30 dni od zgłoszenia.",
+        "time": [
+          "w ciągu 30 dni"
+        ],
+        "totality": [
+          "wszystko"
+        ]
+      },
+      "unitId": "d74a69585222"
+    },
+    {
+      "id": "dc3d852b5b0b~2",
+      "detector": "say",
+      "rule": "deletion",
+      "file": "messages.json",
+      "anchor": "accountDelete",
+      "line": 6,
+      "label": "[de] deletion/we-now  Wir löschen Ihr Konto innerhalb von 30 Tagen.",
+      "meta": {
+        "lang": "de",
+        "area": "deletion",
+        "form": "we-now",
+        "tier": "sure",
+        "negated": false,
+        "match": "löschen",
+        "where": "i18n",
+        "key": "accountDelete",
+        "occurrences": 1,
+        "sentence": "Wir löschen Ihr Konto innerhalb von 30 Tagen.",
+        "time": [
+          "innerhalb von 30 Tagen"
+        ],
+        "totality": []
+      },
+      "unitId": "d74a69585222"
     },
     {
       "id": "2d95a1199d18",
