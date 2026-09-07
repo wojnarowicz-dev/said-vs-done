@@ -152,6 +152,51 @@ const badScripts = listed.filter(s => !(s in scripts));
 check('every npm script named in the README exists', badScripts.length === 0,
   badScripts.length ? 'missing: ' + badScripts.join(', ') : listed.length + ' scripts');
 
+// ---------------------------------------------------------------- 5. the badges
+//
+// A GREEN BADGE OVER MATERIAL NOBODY OPENED IS THIS TOOL'S OWN SUBJECT, printed
+// in the one place every visitor looks first. CI cannot reach the two private
+// checkouts the known answers need, so `npm test` exits 2 there and the job is
+// deliberately left green — which would be a lie standing on its own. The
+// second badge is what stops it standing on its own, and a number in a badge
+// rots exactly like a number in prose.
+//
+// So it is measured rather than trusted: the known-answers layer is run again
+// with its material pointed at a path that does not exist, which is precisely
+// the state CI is in, and the badge must agree with what comes back.
+const NOWHERE = path.join(ROOT, 'no-such-checkout');
+const ci = spawnSync(process.execPath, [path.join(HERE, 'known-answers.mjs')], {
+  cwd: ROOT, encoding: 'utf8', maxBuffer: 1e9, timeout: 120000,
+  env: { ...process.env, SVD_WEB: NOWHERE, SVD_APP: NOWHERE },
+});
+const ciOut = (ci.stdout || '') + (ci.stderr || '');
+const ciRows = ciOut.match(/^ {2}(PASS|FAIL|SKIP) /gm) || [];
+const ciSkipped = ciRows.filter(r => r.includes('SKIP')).length;
+const ciCheckable = ciRows.length - ciSkipped;
+
+// The exit code is half the claim: the badge says what CI covers, the code says
+// what CI reports. If this ever came back 0 the badge would be describing a
+// state that no longer happens.
+check('with no material the known answers exit 2', ci.status === 2,
+  'exit ' + ci.status + ', ' + ciRows.length + ' answers, ' + ciSkipped + ' skipped');
+
+const badge = text.match(/known%20answers-(\d+)%20of%20(\d+)%20checked%20in%20CI/);
+check('the README carries the CI-coverage badge', !!badge,
+  badge ? badge[1] + ' of ' + badge[2] : 'no known-answers badge found');
+
+if (badge) {
+  check('badge: known answers CI can check', Number(badge[1]) === ciCheckable,
+    'badge says ' + badge[1] + ', a run with no material gives ' + ciCheckable);
+  check('badge: known answers in total', Number(badge[2]) === ciRows.length,
+    'badge says ' + badge[2] + ', the layer reports ' + ciRows.length);
+}
+
+// The workflow is named in the badge URL, so it has to be there.
+const wf = [...new Set([...text.matchAll(/actions\/workflows\/([\w.-]+)\/badge\.svg/g)].map(m => m[1]))];
+const badWf = wf.filter(f => !fs.existsSync(path.join(ROOT, '.github', 'workflows', f)));
+check('every workflow named in a badge exists', badWf.length === 0,
+  badWf.length ? 'missing: ' + badWf.join(', ') : wf.join(', ') || 'none named');
+
 console.log('\n  ' + (failed ? failed + ' failed' : 'the README agrees with the tool'));
 if (failed) {
   console.log('\n  The code is the fact and the README is the claim. Fix the claim, or fix the');

@@ -1,5 +1,13 @@
 # said-vs-done
 
+[![tests](https://github.com/wojnarowicz-dev/said-vs-done/actions/workflows/ci.yml/badge.svg)](https://github.com/wojnarowicz-dev/said-vs-done/actions/workflows/ci.yml)
+[![known answers](https://img.shields.io/badge/known%20answers-0%20of%203%20checked%20in%20CI-lightgrey)](test/known-answers.mjs)
+
+The green badge is nine layers. The grey one beside it is what green does not
+cover: all three known answers need two private checkouts, so CI runs them,
+finds no material, and reports **exit 2 — neither a pass nor a failure**. Both
+numbers in that badge are checked by `test/readme.mjs` against a real run.
+
 Reads the promises a project makes to its customers and checks whether anything
 in the code keeps them. **Said against done.**
 

@@ -1,0 +1,176 @@
+# said-vs-done — continuous integration.
+#
+# THE WHOLE PROBLEM THIS FILE HAS TO SOLVE IS THE EXIT CODE.
+#
+# `npm test` has three outcomes and they mean three different things:
+#
+#   0   every layer ran and everything held
+#   1   a layer ran and something is wrong
+#   2   a layer could not reach its material, so it proves nothing
+#
+# GitHub Actions has two: success and failure. There is no amber for a workflow
+# run, and a check run can only be "neutral" through the Checks API, which a
+# workflow cannot reach. So exit 2 has to be mapped onto one of two colours, and
+# both mappings are lies of a different kind:
+#
+#   map 2 -> red    the badge is permanently red on this repository, because all
+#                   three known answers need two private checkouts that CI will
+#                   never have. A badge that is always red is a badge nobody
+#                   reads, and then the day it means something nobody notices.
+#   map 2 -> green  the badge says "passing" over material that was never
+#                   opened. That is this tool's entire subject — "I found
+#                   nothing" standing in for "I could not check" — committed in
+#                   the one place every visitor looks first.
+#
+# WHAT IS DONE INSTEAD. Exit 2 keeps the job green, so the badge stays useful,
+# and three other things make that green impossible to misread:
+#
+#   * a ::warning:: annotation on the run, which GitHub shows in amber
+#   * a job summary that NAMES every known answer that could not be checked,
+#     taken from the layer's own output rather than restated here
+#   * a second badge in the README, on the same line as the first, saying how
+#     many known answers CI can check — and its numbers are verified by
+#     test/readme.mjs against a run of that layer in this state
+#
+# The green badge therefore never stands alone. Beside it, in the same line, is
+# a sentence saying exactly what green does not cover.
+#
+# Exit 1 is red without qualification. A known answer that was reachable and was
+# LOST is a regression, and there is nothing amber about it.
+
+name: tests
+
+on:
+  push:
+  pull_request:
+
+# Least privilege: this workflow reads the repository and writes nothing.
+permissions:
+  contents: read
+
+# A superseded push has nothing to say. Cancelling it keeps the badge showing
+# the head of the branch rather than whichever run happened to finish last.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: npm test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      # BOTH VERSIONS ARE REPORTED. With fail-fast the second is cancelled the
+      # moment the first fails, and "did it break on 18 or on both" is exactly
+      # what the matrix exists to answer.
+      fail-fast: false
+      matrix:
+        # 18 is the floor declared in package.json "engines" — the lookbehind
+        # in src/promise.mjs needs it — and 24 is the newer one. If the floor is
+        # wrong this is where it becomes visible, rather than arriving as
+        # somebody else's bug report.
+        node: ['18', '24']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # NO INSTALL STEP, AND THAT IS CHECKED RATHER THAN ASSUMED. This project
+      # has no runtime dependencies and ships no lock file, so `npm ci` would
+      # fail on the missing lock rather than install anything. The day a
+      # dependency is added, this step goes red and says what to do — which is
+      # better than a suite that quietly runs against whatever npm resolved.
+      - name: nothing to install
+        run: |
+          node -e "
+            const p = require('./package.json');
+            const deps = Object.keys({ ...(p.dependencies || {}), ...(p.devDependencies || {}) });
+            if (deps.length) {
+              console.error('dependencies appeared: ' + deps.join(', '));
+              console.error('add a lock file and an \`npm ci\` step before this one.');
+              process.exit(1);
+            }
+            console.log('zero dependencies, nothing to install');
+          "
+
+      - name: npm test
+        id: suite
+        run: |
+          set +e
+          npm test --silent 2>&1 | tee suite.log
+          code=${PIPESTATUS[0]}
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "exit code: $code"
+          exit 0
+
+      - name: read the exit code
+        env:
+          CODE: ${{ steps.suite.outputs.code }}
+          NODE: ${{ matrix.node }}
+        run: |
+          summary() { echo "$1" >> "$GITHUB_STEP_SUMMARY"; }
+
+          # The layers that did not simply pass, taken from the runner's own
+          # output rather than restated here. A summary that paraphrases is a
+          # summary that drifts.
+          layers=$(grep -E '^(SKIP|FAIL)  ' suite.log || true)
+
+          case "$CODE" in
+            0)
+              summary "### node $NODE — all ten layers passed"
+              summary ""
+              summary '```'
+              grep -E '^(pass|SKIP|FAIL)  |layers\)$' suite.log >> "$GITHUB_STEP_SUMMARY" || true
+              summary '```'
+              ;;
+            2)
+              # NOT A FAILURE AND NOT A PASS. The job stays green so the badge
+              # keeps meaning something, and everything below exists so that
+              # green cannot be mistaken for "everything was checked".
+              echo "::warning title=Material unreachable::npm test exited 2 on node $NODE. One or more layers could not reach their material, so they prove nothing. This is not a failure and it is not a pass — see the run summary."
+
+              # NAMED, ONE BY ONE. The runner only keeps the last few lines of a
+              # layer's output, which is enough to say THAT something was
+              # skipped and not enough to say WHICH. So the layer is asked
+              # again, on its own, and its own words are pasted below.
+              node test/known-answers.mjs > known.log 2>&1 || true
+
+              summary "### node $NODE — :warning: some material was unreachable"
+              summary ""
+              summary "\`npm test\` exited **2**. That is neither a pass nor a failure: a layer"
+              summary "could not reach what it needed, so it proves nothing about it."
+              summary ""
+              summary "**Layers that did not pass:**"
+              summary ""
+              summary '```'
+              echo "${layers:-(none reported)}" >> "$GITHUB_STEP_SUMMARY"
+              summary '```'
+              summary ""
+              summary "**Known answers that could not be checked:**"
+              summary ""
+              summary '```'
+              grep -E '^  SKIP ' known.log >> "$GITHUB_STEP_SUMMARY" || echo "(none reported)" >> "$GITHUB_STEP_SUMMARY"
+              summary '```'
+              summary ""
+              summary "All three known answers need two private checkouts, \`SVD_WEB\` and"
+              summary "\`SVD_APP\`, which this runner does not have and will not get. The other"
+              summary "nine layers are self-contained and did pass. See \`test/known-answers.mjs\`."
+              ;;
+            *)
+              echo "::error title=Tests failed::npm test exited $CODE on node $NODE."
+              summary "### node $NODE — :x: failed"
+              summary ""
+              summary '```'
+              echo "${layers:-(no layer lines found)}" >> "$GITHUB_STEP_SUMMARY"
+              summary '```'
+              summary ""
+              summary '```'
+              tail -40 suite.log >> "$GITHUB_STEP_SUMMARY"
+              summary '```'
+              exit 1
+              ;;
+          esac
