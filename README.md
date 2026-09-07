@@ -3,7 +3,8 @@
 [![tests](https://github.com/wojnarowicz-dev/said-vs-done/actions/workflows/ci.yml/badge.svg)](https://github.com/wojnarowicz-dev/said-vs-done/actions/workflows/ci.yml)
 [![known answers](https://img.shields.io/badge/known%20answers-0%20of%203%20checked%20in%20CI-lightgrey)](test/known-answers.mjs)
 
-The grey badge beside the green one is what green does not cover: all three
+The green badge covers **9 of the 10 layers**, on Node 18 and Node 24. The grey
+badge beside it is the tenth, and what green does not cover: all three
 known answers need two private checkouts, so CI runs them, finds no material,
 and reports **exit 2 — neither a pass nor a failure**. Both numbers in that
 badge are checked by `test/readme.mjs` against a real run.

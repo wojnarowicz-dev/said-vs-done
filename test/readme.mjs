@@ -191,6 +191,24 @@ if (badge) {
     'badge says ' + badge[2] + ', the layer reports ' + ciRows.length);
 }
 
+// THE SENTENCE BESIDE THE BADGE IS A CLAIM TOO, and the first CI run caught it
+// lying: it said nine layers where eight had run, because `resilience` set its
+// scenario up with a Windows program and skipped on the Linux runner. The
+// number was in prose, next to a badge whose numbers were checked, and prose is
+// exactly where a number rots. So it is derived here instead — every layer but
+// the one that needs private material.
+const covered = text.match(/\*\*(\d+) of the (\d+) layers\*\*/);
+check('the README states what CI covers', !!covered,
+  covered ? covered[1] + ' of ' + covered[2] : 'no "N of the M layers" claim found');
+
+if (covered) {
+  check('badge prose: layers CI can run', Number(covered[1]) === TRUTH.testLayers - 1,
+    'README says ' + covered[1] + ', the tool has ' + TRUTH.testLayers +
+    ' layers of which known-answers needs private material');
+  check('badge prose: layers in total', Number(covered[2]) === TRUTH.testLayers,
+    'README says ' + covered[2] + ', the tool has ' + TRUTH.testLayers);
+}
+
 // The workflow is named in the badge URL, so it has to be there.
 const wf = [...new Set([...text.matchAll(/actions\/workflows\/([\w.-]+)\/badge\.svg/g)].map(m => m[1]))];
 const badWf = wf.filter(f => !fs.existsSync(path.join(ROOT, '.github', 'workflows', f)));
