@@ -7,6 +7,14 @@
   "type": "module",
   "bin": { "said-vs-done": "bin/said-vs-done.mjs" },
   "files": ["bin", "src", "README.md", "LICENSE"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wojnarowicz-dev/said-vs-done.git"
+  },
+  "homepage": "https://github.com/wojnarowicz-dev/said-vs-done#readme",
+  "bugs": {
+    "url": "https://github.com/wojnarowicz-dev/said-vs-done/issues"
+  },
   "engines": { "node": ">=18" },
   "scripts": {
     "say": "node bin/said-vs-done.mjs say",

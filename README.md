@@ -24,6 +24,17 @@ sentence stays.
 Four languages (Polish, English, German, Spanish), nine areas of commitment, two
 stages.
 
+## Run it without installing
+
+```
+npx said-vs-done done . --code .
+```
+
+Node 18 or newer, no dependencies, nothing to configure. The first argument is
+where the sentences live, `--code` is where the code that should keep them
+lives; they are often the same directory, and on a project split across
+repositories `--code` takes several.
+
 ---
 
 ## The three cases it was built from
@@ -72,6 +83,11 @@ Then, against the code:
 
 ## Install
 
+    npm i -g said-vs-done
+
+Or nothing at all: `npx said-vs-done` runs it straight from the registry. To get
+the fixtures used in the examples below, clone instead:
+
     git clone <this repo> && cd said-vs-done
 
 No dependencies. Node 18 or newer — the dictionary uses lookbehind, and nothing
@@ -80,6 +96,9 @@ else needs anything.
     $ said-vs-done --help
 
 ## Use
+
+The three commands below read `test/fixtures/`, which is in the repository and
+not in the package; against your own project, point them at its directories.
 
     $ said-vs-done say test/fixtures/site
     $ said-vs-done done test/fixtures/site --code test/fixtures/site test/fixtures/app
