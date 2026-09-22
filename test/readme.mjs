@@ -120,6 +120,50 @@ for (const line of commands) {
       String(r.stderr || r.stdout).trim().split(/[\r\n]+/).slice(-1)[0].slice(0, 70));
 }
 
+// ---------------------------------------------------------------- 2b. npx
+//
+// THE FIRST COMMAND ANYBODY TYPES, AND NOTHING WAS CHECKING IT. The page opens
+// with "run it without installing" and an npx line, and the gate above never
+// saw it: that pattern wants the prompt form, and the npx block is written
+// without one. Three of these four tools had the same hole.
+//
+// TWO THINGS ARE ASKED, because they fail differently. A wrong package name
+// sends the reader to somebody else's package, and no amount of running the
+// tool locally would show it. A stale sub-command is the ordinary drift the
+// gate above already watches for, in a place it could not reach.
+{
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  const binNames = Object.keys(pkg.bin || {});
+  const npx = [...text.matchAll(/\bnpx\s+([a-z0-9@._-]+)([^\n`]*)/gi)]
+    .map(m => ({ pkg: m[1], rest: (m[2] || '').trim() }));
+
+  check('the README shows an npx line at all', npx.length > 0, npx.length + ' found');
+
+  const wrongName = npx.filter(n => n.pkg.replace(/@.*$/, '') !== pkg.name);
+  check('npx names this package', wrongName.length === 0,
+    wrongName.length ? 'says ' + wrongName[0].pkg + ', package is ' + pkg.name : pkg.name);
+
+  check('the npx name is an executable', binNames.includes(pkg.name),
+    binNames.length ? 'bin: ' + binNames.join(', ') : 'no bin at all');
+
+  for (const n of npx) {
+    // TRAILING PUNCTUATION, BUT NOT AN ARGUMENT. A dot glued to a word ends a
+    // sentence; a dot standing alone is a directory. Getting this backwards in
+    // the sibling tool made the gate run a bare sub-command, take exit 2 back
+    // and call it a pass.
+    const rest = n.rest.replace(/(?<=[A-Za-z0-9])[.,;:]$/, '').replace(/[,;:]$/, '').trim();
+    if (!rest) continue;
+    const args = rest.split(/\s+/)
+      .map(a => a.replace('<text-dir>', SITE).replace('<repo>', APP).replace('<site>', SITE));
+    const r = spawnSync(process.execPath, [CLI, ...args, '--config', CONFIG, '--top', '0'],
+      { cwd: ROOT, encoding: 'utf8', maxBuffer: 1e9, timeout: 60000 });
+    const ok = r.status === 0 || r.status === 1;
+    check('runs: npx ' + pkg.name + ' ' + rest.slice(0, 26), ok,
+      ok ? 'exit ' + r.status : 'exit ' + r.status + '  ' +
+        String(r.stderr || r.stdout).trim().split(/[\r\n]+/).slice(-1)[0].slice(0, 50));
+  }
+}
+
 // ---------------------------------------------------------------- 3. names
 //
 // Every flag, verdict and source file the README names must exist. This is the
