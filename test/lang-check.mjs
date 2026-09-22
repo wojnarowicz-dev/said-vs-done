@@ -151,5 +151,84 @@ console.log('\n  6. the package page');
   if (dupes.length) fail('keywords duplicated: ' + dupes.join(', '));
 }
 
+console.log('\n  7. the page a reader actually reads');
+//
+// THE CHECK ABOVE STOPS AT package.json. The description and the keywords are
+// held to LANGUAGES; the README — the page somebody reads before deciding
+// whether this tool can read their site — is held to nothing but a COUNT:
+// `<!-- svd:claim name=languages value=4 -->`. Swap German for French on the
+// line that lists them and the count is still four, the claim still passes,
+// and the page names a language this build cannot read.
+//
+// That is the shape found in looks-clean, where a command's header promised a
+// narrower set than the line directly under it and two gates stood green over
+// the contradiction. The repair is the same one: do not compare two sentences
+// with each other, compare every sentence with the CODE. LANGUAGES in
+// src/promise.mjs is what the detector returns, so it is the fact; a paragraph
+// naming languages is a claim about that fact.
+//
+// A CLAIM IS A PARAGRAPH, not a line. A sentence wrapped over two lines is one
+// claim, and reading line by line turns complete statements into halves. A
+// paragraph naming two or more of the four beside a word about reading is
+// claiming scope and has to name all four; naming one is talking about that
+// language, and "Why Polish gets an explicit wordlist" promises nothing.
+//
+// Measured before this was written: two paragraphs of README.md match and both
+// name all four. So it goes in as a guard, and its red was produced by putting
+// French where German stands.
+{
+  const NAMES = LANGUAGES.map(c => LANGUAGE_NAMES[c]);
+  const SCOPE_WORDS = /\b(reads?|scans?|scanning|text|pages?|sites?|polic\w+|promises?|supports?|languages?)\b/i;
+
+  const named = (text) => {
+    let t = text;
+    const found = new Set();
+    // Longest first, in case one name is ever a prefix of another.
+    for (const n of [...NAMES].sort((a, b) => b.length - a.length)) {
+      const re = new RegExp('\\b' + n + '\\b', 'g');
+      if (re.test(t)) { found.add(n); t = t.replace(re, ' '.repeat(n.length)); }
+    }
+    return found;
+  };
+
+  const units = (text) => {
+    const out = [];
+    const lines = text.split(/\r?\n/);
+    let buf = null, start = 0;
+    const flush = () => { if (buf) out.push({ line: start, text: buf.join(' ') }); buf = null; };
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (!l.trim() || /^\s*\|/.test(l) || /^#{1,6} /.test(l)) {
+        flush();
+        if (l.trim()) out.push({ line: i + 1, text: l });
+        continue;
+      }
+      if (!buf) { buf = []; start = i + 1; }
+      buf.push(l);
+    }
+    flush();
+    return out;
+  };
+
+  const page = path.join(REPO, 'README.md');
+  if (!fs.existsSync(page)) fail('there is no README.md to check');
+  else {
+    let claims = 0;
+    for (const u of units(fs.readFileSync(page, 'utf8'))) {
+      const found = named(u.text);
+      if (found.size < 2 || !SCOPE_WORDS.test(u.text)) continue;
+      const missing = NAMES.filter(n => !found.has(n));
+      if (missing.length) {
+        fail('README.md:' + u.line + ' claims scope and does not name ' + missing.join(', ') +
+          '\n          "' + u.text.trim().slice(0, 86) + '"');
+        continue;
+      }
+      claims++;
+    }
+    console.log('    ' + claims + ' scope claim(s) on the page, each naming all ' +
+      NAMES.length + ': ' + NAMES.join(', '));
+  }
+}
+
 console.log('\n  ' + (failed ? failed + ' failed' : 'all checks passed'));
 if (failed) process.exit(1);
