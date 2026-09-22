@@ -1,12 +1,19 @@
 {
   "name": "said-vs-done",
   "version": "0.1.0",
-  "description": "Reads the promises made to a customer and checks whether anything in the code keeps them. Said against done.",
+  "description": "Reads the promises a project makes to its customers — in Polish, English, German or Spanish — and checks whether anything in the code keeps them. Said against done.",
   "license": "MIT",
   "author": "Aleksander Wojnarowicz",
   "type": "module",
-  "bin": { "said-vs-done": "bin/said-vs-done.mjs" },
-  "files": ["bin", "src", "README.md", "LICENSE"],
+  "bin": {
+    "said-vs-done": "bin/said-vs-done.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wojnarowicz-dev/said-vs-done.git"
@@ -15,7 +22,9 @@
   "bugs": {
     "url": "https://github.com/wojnarowicz-dev/said-vs-done/issues"
   },
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "say": "node bin/said-vs-done.mjs say",
     "done": "node bin/said-vs-done.mjs done",
@@ -31,5 +40,16 @@
     "readme": "node test/readme.mjs",
     "test": "node test/all.mjs"
   },
-  "keywords": ["promises", "compliance", "privacy-policy", "i18n", "static-analysis", "documentation-drift"]
+  "keywords": [
+    "promises",
+    "compliance",
+    "privacy-policy",
+    "i18n",
+    "static-analysis",
+    "documentation-drift",
+    "polish",
+    "english",
+    "german",
+    "spanish"
+  ]
 }

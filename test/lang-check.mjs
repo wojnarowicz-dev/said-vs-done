@@ -9,7 +9,13 @@
 //
 // It reads the dictionary itself rather than matching the file with a regular
 // expression, so what is checked is exactly what ships.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { messages } from '../src/lang.mjs';
+import { LANGUAGES, LANGUAGE_NAMES } from '../src/promise.mjs';
+
+const REPO = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // Words that are allowed to appear in a Polish message because they are
 // identifiers, not prose: flag names, verdict names, file extensions. This list
@@ -82,6 +88,67 @@ for (const id of ['no-witness', 'covered', 'elsewhere', 'inspect']) {
   for (const k of inEn) {
     if (!(messages[k].pl || '').includes(id)) fail(k + ': "' + id + '" was translated away in the Polish version');
   }
+}
+
+// ---- 6. the package page, which is the only part a stranger reads first
+//
+// npm prints the description and the keywords to somebody who has never heard
+// of this project. Nothing was checking either, and both are the kind of
+// sentence that is written once and then quietly stops being true.
+//
+// A SIBLING TOOL SHIPPED A RELEASE whose whole description was Polish without
+// diacritics — `Porownuje migracje SQL ... Tylko odczyt.` — and no test said a
+// word, because a check for ąćęłńóśźż would have let that sentence through.
+//
+// AND THE SUBSTRING TRAP IS WORSE HERE THAN ANYWHERE. This tool reads promise
+// text in four languages, and their codes are two letters: `en` sits inside
+// "when", `pl` inside "simply", `de` inside "under", `es` inside "promises".
+// A check written against the codes would pass on any English sentence at all.
+// So the table carries a NAME for each, and the names are matched on word
+// boundaries.
+console.log('\n  6. the package page');
+{
+  const pkg = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8'));
+  const names = LANGUAGES.map(c => LANGUAGE_NAMES[c]);
+
+  const unnamed = LANGUAGES.filter(c => !LANGUAGE_NAMES[c]);
+  if (unnamed.length) fail('a language with no name to search for: ' + unnamed.join(', '));
+
+  const LETTER = c => c !== undefined && /[A-Za-z]/.test(c);
+  const namesIt = (text, name) => {
+    for (let at = text.indexOf(name); at !== -1; at = text.indexOf(name, at + 1))
+      if (!LETTER(text[at - 1]) && !LETTER(text[at + name.length])) return true;
+    return false;
+  };
+
+  const absent = names.filter(nm => !namesIt(pkg.description, nm));
+  if (absent.length) fail('the description names no ' + absent.join(', ') + ' — nobody searching for it finds this');
+
+  const kw = (pkg.keywords || []).map(k => k.toLowerCase());
+  const unkeyed = names.filter(nm => !kw.includes(nm.toLowerCase()));
+  if (unkeyed.length) fail('the keywords name no ' + unkeyed.join(', '));
+
+  // The smoke alarm, not a language detector. Function words no Polish
+  // sentence of this length avoids, plus the ones that actually shipped.
+  const POLISH = ['nie', 'jest', 'sie', 'tego', 'tym', 'tych', 'ktore', 'ktora', 'ktory',
+    'oraz', 'przez', 'dla', 'jako', 'tylko', 'bez', 'gdy', 'czy', 'juz', 'moze', 'musi',
+    'wszystkie', 'porownuje', 'wypisuje', 'sprawdza', 'zwraca', 'odczyt', 'plik', 'pliku',
+    'kod', 'kodu', 'obietnice', 'obietnic', 'narzedzie', 'czyta'];
+  const DIACRITICS = /[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/;
+  const words = (pkg.description.match(/[A-Za-z]{3,}/g) || []).map(w => w.toLowerCase());
+  const leaked = [...new Set(words.filter(w => POLISH.includes(w)))];
+  const diacritic = pkg.description.match(DIACRITICS);
+  if (diacritic) fail('the description is not in English: Polish letter ' + diacritic[0]);
+  else if (leaked.length) fail('the description is not in English: ' + leaked.join(', '));
+
+  // npm lowercases nothing and de-duplicates nothing: a keyword with a capital
+  // in it is a keyword nobody reaches.
+  const raw = pkg.keywords || [];
+  const cased = raw.filter(k => k !== k.toLowerCase());
+  const dupes = [...new Set(kw.filter((k, i) => kw.indexOf(k) !== i))];
+  if (!raw.length) fail('no keywords at all');
+  if (cased.length) fail('keywords not lowercase: ' + cased.join(', '));
+  if (dupes.length) fail('keywords duplicated: ' + dupes.join(', '));
 }
 
 console.log('\n  ' + (failed ? failed + ' failed' : 'all checks passed'));

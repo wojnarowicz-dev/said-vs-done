@@ -67,7 +67,19 @@ export const AREAS = [
   'guarantee',     // we guarantee / ensure / commit
 ];
 
+// THE LANGUAGES OF THE TEXT THIS TOOL READS, and the name each one goes by on
+// a page somebody searches. The codes are what the detector returns; the names
+// are what a person looking for "a tool that reads our German privacy policy"
+// would type. Both live here so that the package description and this table
+// cannot drift apart — test/lang-check.mjs holds them to each other.
 export const LANGUAGES = ['pl', 'en', 'de', 'es'];
+
+export const LANGUAGE_NAMES = {
+  pl: 'Polish',
+  en: 'English',
+  de: 'German',
+  es: 'Spanish',
+};
 
 // The forms that put somebody on the hook. `we-*` and `i-*` are both `sure`:
 // a one-person business writing "odpowiadam w ciagu doby" has promised exactly
