@@ -120,6 +120,63 @@ for (const line of commands) {
       String(r.stderr || r.stdout).trim().split(/[\r\n]+/).slice(-1)[0].slice(0, 70));
 }
 
+// ------------------------------------------------- 2a. what the reader can run
+//
+// THE GATE USED TO MEASURE WHERE THE ERROR COULD NOT HAPPEN. Every command on
+// this page is executed above — in the CLONE, where `test/fixtures/` exists.
+// The person who installs from npm has no such directory: `files` ships bin,
+// src, the page and the licence. So the three examples under "Use" pointed at
+// something no reader has, this layer ran them happily, and there was no input
+// at which it would have said otherwise.
+//
+// That is a check whose result does not depend on the state of the world —
+// inside a tool whose whole job is to ask whether a promise made to a customer
+// has anything behind it. Its own page promised three commands with nothing
+// behind them in the package, and its own gate could not see it, because it
+// was standing on the wrong side: in the repository rather than where the
+// reader stands.
+//
+// A clone-only example is legitimate; it has to SAY so where a machine can
+// read it, and be skipped out loud. The prose above the block already said it.
+// Nothing enforced it.
+{
+  const packed = JSON.parse(spawnSync('npm', ['pack', '--dry-run', '--json'],
+    { cwd: ROOT, encoding: 'utf8', shell: true, maxBuffer: 1e9 }).stdout);
+  const shipped = new Set(packed[0].files.map(f => f.path.replace(/\\/g, '/')));
+  const shipsDir = d => [...shipped].some(f => f === d || f.startsWith(d.replace(/\/+$/, '') + '/'));
+
+  check('the package list could be read', shipped.size > 0, shipped.size + ' files');
+
+  const lines = text.split(/\r?\n/);
+  let runnable = 0, marked = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^\s{4}\$ said-vs-done (.+)$/);
+    if (!m) continue;
+
+    // The marker is read from the eight lines above the block, because one
+    // sentence can cover a run of examples — as it does here.
+    const near = lines.slice(Math.max(0, i - 8), i).join('\n');
+    const cloneOnly = /<!--\s*svd:clone-only\s+reason="([^"]+)"\s*-->/.exec(near);
+
+    const paths = m[1].split(/\s+/)
+      .filter(a => !a.startsWith('--') && !a.startsWith('<') && a !== '.')
+      .filter(a => /[/\\]/.test(a) || /^[\w.-]+\.\w+$/.test(a));
+    const outside = paths.filter(p => !shipped.has(p) && !shipsDir(p));
+    if (!outside.length) { runnable++; continue; }
+
+    if (cloneOnly) {
+      marked++;
+      console.log('  skip  said-vs-done ' + m[1].slice(0, 40));
+      console.log('        ' + cloneOnly[1] + '   (' + outside.join(', ') + ')');
+      continue;
+    }
+    check('an example points at something the reader has', false,
+      'said-vs-done ' + m[1].slice(0, 28) + '  ->  ' + outside.join(', ') + ' is not in the package');
+  }
+  check('every example is runnable or marked clone-only', true,
+    runnable + ' runnable, ' + marked + ' marked');
+}
+
 // ---------------------------------------------------------------- 2b. npx
 //
 // THE FIRST COMMAND ANYBODY TYPES, AND NOTHING WAS CHECKING IT. The page opens

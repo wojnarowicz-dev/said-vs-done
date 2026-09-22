@@ -159,6 +159,8 @@ else needs anything.
 The three commands below read `test/fixtures/`, which is in the repository and
 not in the package; against your own project, point them at its directories.
 
+<!-- svd:clone-only reason="test/fixtures/ is in the repository, not in the package" -->
+
     $ said-vs-done say test/fixtures/site
     $ said-vs-done done test/fixtures/site --code test/fixtures/site test/fixtures/app
     $ said-vs-done done test/fixtures/site --code test/fixtures/site test/fixtures/app --only no-witness
