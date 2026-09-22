@@ -24,6 +24,27 @@ sentence stays.
 Four languages (Polish, English, German, Spanish), nine areas of commitment, two
 stages.
 
+## What changed in 0.2.1
+
+Nothing about what the tool does, or about any exit code it returns. This is
+the layer that asks whether the tool fails loudly, and measuring it found that
+it was passing over two things of its own:
+
+* **Four expected phrases could never print.** They had been green for as long
+  as they existed, carried by a live phrase beside them — `speaks` counted a
+  scenario as having spoken if ANY entry matched. `outside UTF-8` appears
+  nowhere in this tool's source at all. Every expectation is now a group: all
+  groups must be satisfied, and any spelling inside one satisfies it, so a
+  deliberate alternative (`EPERM` on Windows, `EACCES` elsewhere) still looks
+  like one and a dead phrase does not.
+* **A stack trace was not a crash.** The state came off the exit code alone,
+  and an uncaught exception in Node exits 1 — an ordinary failure by that
+  rule. With a throw injected after the output had been written, the layer
+  printed `0 CRASH` and exited 0 over four dead runs. A stack trace in the
+  output is now a crash whatever the code says.
+
+If you only run the tool, this release changes nothing for you.
+
 ## What changed in 0.2.0
 
 **If you run this in CI, read this line: the exit codes moved.** `2` now means
