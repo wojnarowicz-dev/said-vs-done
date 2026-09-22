@@ -25,7 +25,12 @@ const COMMANDS = {
     module: 'say.mjs',
     arg: '<text-dir>',
     descKey: 'cmdSay',
-    options: '--tier sure|edge  --area deletion  --top 40  --json <file>',
+    // --fail-on-state IS LISTED BECAUSE IT NOW DOES SOMETHING HERE. `say`
+    // computed its exit code with its own arithmetic, so the flag was accepted
+    // and ignored: the help was honest about a tool that was not. Now the flag
+    // works, and a flag that works and is undocumented is the same defect
+    // pointing the other way.
+    options: '--tier sure|edge  --area deletion  --top 40  --json <file>  --fail-on-state',
   },
   done: {
     module: 'done.mjs',
