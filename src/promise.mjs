@@ -786,3 +786,46 @@ export function lexiconSize() {
 }
 
 export const _tables = { PL, EN, DE, ES, EDGE };
+
+// ------------------------------------------------ every table keyed by language
+//
+// WHY THIS REGISTRY EXISTS. LANGUAGES says this build reads four languages, and
+// lang-check holds the npm description, the keywords and the page to it. None
+// of that ever asked the module whether it can actually READ four. A fifth code
+// added to LANGUAGES with no row in NEGATION, no compiled matcher and no
+// stopword list would pass every gate in this repository, and the npm page
+// would offer a language the detector silently never recognises. That is this
+// tool's own subject — a promise with nothing behind it — committed in the file
+// that defines what a promise is.
+//
+// So the tables register themselves here, and test/lang-check.mjs asks the list
+// two things: that every table covers LANGUAGES, and that the list is not
+// missing a table. THE SECOND HALF MATTERS MORE. A registry that only checks
+// what it already knows about is the exact shape of gate this project keeps
+// finding — green because it was never shown the thing that broke. So the layer
+// also reads this file as TEXT and fails on a language-keyed table that is not
+// named below.
+//
+// PARTIAL ON PURPOSE IS A SENTENCE, NOT A SILENCE. Three tables cover English
+// and German only and one covers German only. Each already carried a comment
+// saying why; `partial` is that reason put where a machine can read it, and it
+// is printed on every run rather than skipped quietly.
+export const LANGUAGE_TABLES = [
+  { name: 'LANGUAGE_NAMES', of: LANGUAGE_NAMES },
+  { name: 'TABLES', of: TABLES },
+  { name: 'EDGE', of: EDGE },
+  { name: 'NEGATION', of: NEGATION },
+  { name: 'QUALIFIERS.time', of: QUALIFIERS.time },
+  { name: 'QUALIFIERS.totality', of: QUALIFIERS.totality },
+  { name: 'DURATION', of: DURATION },
+  { name: 'NOT_A_QUANTITY', of: NOT_A_QUANTITY },
+  { name: 'HINTS', of: HINTS },
+  { name: 'SUBJECT', of: SUBJECT,
+    partial: 'only where the language writes the speaker as a separate word; Polish and Spanish carry it in the ending' },
+  { name: 'TENSE', of: TENSE,
+    partial: 'only where an auxiliary moves the tense; in Polish and Spanish the form already says which' },
+  { name: 'MODAL', of: MODAL,
+    partial: 'only where a modal stands as a separate word before the verb' },
+  { name: 'NEGATION_AFTER', of: NEGATION_AFTER,
+    partial: 'German puts the particle after the verb; the other three do not' },
+];

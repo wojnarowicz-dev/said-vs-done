@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { messages } from '../src/lang.mjs';
-import { LANGUAGES, LANGUAGE_NAMES } from '../src/promise.mjs';
+import { LANGUAGES, LANGUAGE_NAMES, LANGUAGE_TABLES } from '../src/promise.mjs';
 
 const REPO = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -109,10 +109,18 @@ for (const id of ['no-witness', 'covered', 'elsewhere', 'inspect']) {
 console.log('\n  6. the package page');
 {
   const pkg = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8'));
-  const names = LANGUAGES.map(c => LANGUAGE_NAMES[c]);
 
   const unnamed = LANGUAGES.filter(c => !LANGUAGE_NAMES[c]);
   if (unnamed.length) fail('a language with no name to search for: ' + unnamed.join(', '));
+
+  // .filter(Boolean) IS THE WHOLE FIX AND IT IS NOT COSMETIC. Without it a
+  // language with no name put `undefined` in this list, and the next check
+  // called .toLowerCase() on it — so the layer DIED at section 6 with a
+  // TypeError instead of reporting, and every section after it never ran. A
+  // gate that crashes on the defect it just found reports less than one that
+  // says nothing, because the crash reads as a broken test rather than as a
+  // finding. Found by running the red for section 8 below.
+  const names = LANGUAGES.map(c => LANGUAGE_NAMES[c]).filter(Boolean);
 
   const LETTER = c => c !== undefined && /[A-Za-z]/.test(c);
   const namesIt = (text, name) => {
@@ -228,6 +236,80 @@ console.log('\n  7. the page a reader actually reads');
     console.log('    ' + claims + ' scope claim(s) on the page, each naming all ' +
       NAMES.length + ': ' + NAMES.join(', '));
   }
+}
+
+console.log('\n  8. can this build actually read the four it names?');
+//
+// THE GATE DID NOT CHECK ITS OWN LIST AGAINST REALITY. Sections 6 and 7 hold
+// the npm description, the keywords and the page to LANGUAGES. Nothing asked
+// src/promise.mjs whether it can read four languages: a fifth code added to
+// LANGUAGES with no row in NEGATION, no compiled matcher and no stopword list
+// would pass every gate in this repository, and the npm page would offer a
+// language the detector silently never recognises.
+//
+// The sibling gate in odd-one-out does this half: it builds the expected names
+// from src/scope.mjs AND checks that list against the detectors that exist in
+// bin/. Adding a detector without adding it to the list is red there. This one
+// built names from LANGUAGE_NAMES and stopped.
+//
+// BOTH DIRECTIONS, and the second is the one that matters. A registry checked
+// only against itself is the shape of gate this project keeps finding: green
+// because it was never shown the thing that broke. So the source is read as
+// TEXT as well, and a language-keyed table missing from LANGUAGE_TABLES fails.
+{
+  const CODE_KEY = /^(\s+)([a-z]{2}):/;
+
+  for (const t of LANGUAGE_TABLES) {
+    const codes = Object.keys(t.of || {});
+    const alien = codes.filter(c => !LANGUAGES.includes(c));
+    if (alien.length)
+      fail(t.name + ' is keyed by ' + alien.join(', ') + ', which LANGUAGES does not list');
+
+    const missing = LANGUAGES.filter(c => !codes.includes(c));
+    if (!missing.length) continue;
+    if (t.partial) {
+      console.log('    partial  ' + t.name.padEnd(20) + '(' + codes.join(',') + ')  ' + t.partial);
+      continue;
+    }
+    fail(t.name + ' has no entry for ' + missing.join(', ') +
+      ' — this build names that language and cannot read it');
+  }
+
+  // The other direction: a table the registry has never heard of.
+  const src = fs.readFileSync(path.join(REPO, 'src', 'promise.mjs'), 'utf8');
+  const lines = src.split(/\r?\n/);
+  const known = LANGUAGE_TABLES.map(t => t.name);
+  const declared = [];
+  for (let i = 0; i < lines.length; i++) {
+    // A ONE-LINE TABLE IS STILL A TABLE. `const NEGATION_AFTER = { de: 30 };`
+    // was invisible to the first version of this scan, which wanted the brace
+    // to end the line — so the one table in this file that covers a single
+    // language was the one the check could not see.
+    const one = /^(?:export\s+)?const\s+([A-Za-z_][\w]*)\s*=\s*\{([^{}]*)\}/.exec(lines[i]);
+    if (one && LANGUAGES.some(c => new RegExp('\\b' + c + '\\s*:').test(one[2]))) {
+      declared.push({ name: one[1], line: i + 1 });
+      continue;
+    }
+    const d = /^(?:export\s+)?const\s+([A-Za-z_][\w]*)\s*=\s*\{\s*$/.exec(lines[i]);
+    if (!d) continue;
+    // A language table declares a two-letter code within the next few lines,
+    // either directly or one level down (QUALIFIERS holds time and totality).
+    let hasCode = false;
+    for (let j = i + 1; j < Math.min(lines.length, i + 10); j++) {
+      if (/^(?:export\s+)?const\s/.test(lines[j])) break;
+      const m = CODE_KEY.exec(lines[j]);
+      if (m && LANGUAGES.includes(m[2])) { hasCode = true; break; }
+    }
+    if (hasCode) declared.push({ name: d[1], line: i + 1 });
+  }
+  const unregistered = declared.filter(d =>
+    !known.some(k => k === d.name || k.startsWith(d.name + '.')));
+  for (const d of unregistered)
+    fail('src/promise.mjs:' + d.line + ' declares ' + d.name +
+      ', a table keyed by language that LANGUAGE_TABLES does not name');
+
+  console.log('    ' + LANGUAGE_TABLES.length + ' registered table(s), ' +
+    declared.length + ' found in the source, for ' + LANGUAGES.join('/'));
 }
 
 console.log('\n  ' + (failed ? failed + ' failed' : 'all checks passed'));
