@@ -21,6 +21,7 @@
 // as speaking about the damage if it appears in the damaged run AND NOT in the
 // healthy one. A criterion a healthy run also satisfies measures nothing.
 import { spawnSync, execFileSync } from 'node:child_process';
+import { exitCodeFor } from '../src/summary.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -58,15 +59,31 @@ function run(args) {
 }
 
 const SCENARIOS = [];
-const scenario = (name, damage, build, speaks, control) =>
-  SCENARIOS.push({ name, damage, build, speaks, control });
+// A SCENARIO MAY NAME THE CODE IT MUST RETURN.
+//
+// The states below grade what a run SAID. They do not grade what it returned,
+// and an exit code is a contract with a build. Learned the hard way in the
+// sibling tool: with the exit rule reverted, the decisive scenario there went
+// from LOUD to SPOKE — a different label, both of them PASSING, and the layer
+// stayed green over a build contract that had been undone.
+const scenario = (name, damage, build, speaks, control, expectExit = null) =>
+  SCENARIOS.push({ name, damage, build, speaks, control, expectExit });
 
 const healthySay = () => ['say', site('healthy')];
 
+// THE EXIT CODE, NOT ONLY THE SENTENCE. This scenario passed for as long as
+// it existed while the run exited 0 — it checked that the tool SAID nothing
+// was read and never that it returned a number saying so.
 scenario('empty text directory', 'nothing to read at all',
   () => ['say', dir('empty')],
   ['No .html/.js/.md files'],
-  healthySay);
+  healthySay, 2);
+
+// And the same door, through the other command.
+scenario('empty text directory, judged', 'nothing to read, and a verdict asked for',
+  () => ['done', dir('empty2'), '--code', dir('empty2')],
+  ['No .html/.js/.md files'],
+  healthySay, 2);
 
 scenario('text root does not exist', 'the scanned path is not there',
   () => ['say', path.join(TMP, 'not-here')],
@@ -177,7 +194,62 @@ scenario('coverage run with no --code', 'the scope was never stated',
   ['NO --code GIVEN'],
   () => { const s = site('scoped'); return ['done', s, '--code', s, app('scoped2')]; });
 
+// ------------------------------------------------------------- the rule itself
+//
+// THE SCENARIOS TEST THE TOOL. THIS TESTS THE RULE THAT SCORES IT. A run
+// cannot exercise every shape of summary — `inspect` in particular needs real
+// policy text and does not occur in any fixture here — so the rule is asked
+// directly, with summaries written down rather than produced.
+//
+// The first row is the whole reason this tool's rule differs from its
+// sibling's by one word. Measured on pinned corpora, with not one accusation
+// between them: matomo covered 27, inspect 5; joplin covered 125, inspect 9.
+// Keyed on the whole of `unreachable`, both would exit 2 forever, over
+// material read perfectly well.
+const RULES = [
+  ['questions, nothing unread, nothing accused', 0,
+    { actionable: 0, explained: 27, notApplicable: 10, unreachable: 5,
+      unreachableIs: { aQuestionForAPerson: 5, couldNotBeRead: 0 } }, 0],
+  ['the same, with more of them', 0,
+    { actionable: 0, explained: 125, notApplicable: 39, unreachable: 9,
+      unreachableIs: { aQuestionForAPerson: 9, couldNotBeRead: 0 } }, 0],
+  ['nothing read at all', 2,
+    { actionable: 0, explained: 0, notApplicable: 0, unreachable: 1,
+      unreachableIs: { aQuestionForAPerson: 0, couldNotBeRead: 1 } }, 0],
+  ['nothing read, and questions too', 2,
+    { actionable: 0, explained: 0, notApplicable: 0, unreachable: 4,
+      unreachableIs: { aQuestionForAPerson: 3, couldNotBeRead: 1 } }, 0],
+  ['unread, but the run still accused somebody', 1,
+    { actionable: 2, explained: 5, notApplicable: 0, unreachable: 1,
+      unreachableIs: { aQuestionForAPerson: 0, couldNotBeRead: 1 } }, 2],
+  ['new accusations', 1,
+    { actionable: 8, explained: 164, notApplicable: 40, unreachable: 19,
+      unreachableIs: { aQuestionForAPerson: 19, couldNotBeRead: 0 } }, 8],
+  ['accusations, but none of them new', 0,
+    { actionable: 8, explained: 164, notApplicable: 40, unreachable: 19,
+      unreachableIs: { aQuestionForAPerson: 19, couldNotBeRead: 0 } }, 0],
+];
+
 console.log('said-vs-done — failure resilience\n');
+console.log('  what exit code a summary earns\n');
+let ruleFailed = 0;
+for (const [name, want, summary, newActionable] of RULES) {
+  const got = exitCodeFor(summary, { newActionable });
+  const ok = got === want;
+  if (!ok) ruleFailed++;
+  console.log('  ' + (ok ? 'ok    ' : 'FAIL  ') + name.padEnd(46) + want + (ok ? '' : ', got ' + got));
+}
+// And the state contract, for anyone who asks for it.
+{
+  const s2 = { actionable: 8, explained: 164, notApplicable: 40, unreachable: 19,
+    unreachableIs: { aQuestionForAPerson: 19, couldNotBeRead: 0 } };
+  const got = exitCodeFor(s2, { newActionable: 0, failOnState: true });
+  const ok = got === 1;
+  if (!ok) ruleFailed++;
+  console.log('  ' + (ok ? 'ok    ' : 'FAIL  ') + '--fail-on-state turns old accusations red'.padEnd(46) + 1 + (ok ? '' : ', got ' + got));
+}
+console.log('');
+
 const rows = [];
 for (const s of SCENARIOS) {
   let args;
@@ -191,11 +263,13 @@ for (const s of SCENARIOS) {
   const useless = s.speaks.filter(k => damaged.out.includes(k) && healthy.out.includes(k));
 
   const status = damaged.status;
-  const state = (status !== 0 && status !== 1 && status !== 2) ? 'CRASH'
+  let state = (status !== 0 && status !== 1 && status !== 2) ? 'CRASH'
     : status === 2 ? 'LOUD'
       : said.length ? 'SPOKE' : 'SILENT';
+  if (s.expectExit !== null && status !== s.expectExit) state = 'WRONG-EXIT';
 
   let detail = 'exit ' + status;
+  if (state === 'WRONG-EXIT') detail += '   expected exit ' + s.expectExit;
   if (state === 'SPOKE') detail += '   "' + said[0] + '"';
   if (state === 'SILENT' && useless.length)
     detail += '   ("' + useless[0] + '" also printed by a healthy run)';
@@ -205,6 +279,7 @@ for (const s of SCENARIOS) {
 for (const r of rows) console.log('  ' + r.state.padEnd(7) + r.name.padEnd(36) + r.detail);
 
 const silent = rows.filter(r => r.state === 'SILENT');
+const wrongExit = rows.filter(r => r.state === 'WRONG-EXIT');
 const crashed = rows.filter(r => r.state === 'CRASH');
 const skipped = rows.filter(r => r.state === 'SKIP');
 console.log('\n  ' + rows.filter(r => r.state === 'LOUD').length + ' loud, ' +
@@ -222,5 +297,10 @@ if (silent.length) {
   for (const r of silent) console.log('    ' + r.name + ' — ' + r.damage + ', and nothing said');
   console.log('\n  A run that returns nothing without saying why cannot be told from a clean run.');
 }
-if (silent.length || crashed.length) process.exit(1);
+if (wrongExit.length) {
+  console.log('\n  Wrong exit code:');
+  for (const r of wrongExit)
+    console.log('    ' + r.name + ' — a build reads that number and nothing else');
+}
+if (silent.length || crashed.length || wrongExit.length || ruleFailed) process.exit(1);
 if (skipped.length) process.exit(2);

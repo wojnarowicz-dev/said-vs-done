@@ -14,6 +14,7 @@ import { reportNonUtf8 } from './input.mjs';
 import { loadConfig } from './config.mjs';
 import { collect, sentenceRows, unreadableFiles } from './collect.mjs';
 import { recognise, lexiconSize } from './promise.mjs';
+import { summaryOf } from './summary.mjs';
 import { noSourcesIn } from './population.mjs';
 
 const argv = process.argv.slice(2);
@@ -97,7 +98,19 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const result = findPromises(ROOT, cfg);
 
   const missing = noSourcesIn(result.files, '.html/.js/.md', ROOT);
-  if (missing) { console.log(missing); process.exit(0); }
+  if (missing) {
+    console.log(missing);
+
+    // THE SAME DEFECT AS IN done.mjs, AND IT LIVED IN BOTH COMMANDS. The
+    // sentence above says nothing was read; the exit code said the run was
+    // fine. A build reads the number.
+    const summary = summaryOf({}, { textRead: 0 });
+    console.log('');
+    console.log(t('summaryLine', summary.actionable, summary.explained,
+      summary.notApplicable, summary.unreachable));
+    console.log(t('summaryUnread'));
+    process.exit(2);
+  }
 
   let shown = result.promises;
   if (TIER !== 'all') shown = shown.filter(p => p.tier === TIER);

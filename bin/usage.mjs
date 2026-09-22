@@ -32,6 +32,18 @@ export function help(COMMANDS, code = 0) {
   w('  npx said-vs-done done ./src/web --code . ../TheProgram --only no-witness');
   w('  npx said-vs-done diff old.json new.json');
   w('');
+  // THE EXIT CODES BELONG IN THE HELP, not only in a README nobody opens when
+  // wiring a build. `2` is the one that matters, and the distinction under it
+  // is the one this tool needs: a question it cannot answer is not a failure
+  // to look.
+  w(t('usageExitTitle'));
+  w(t('usageExit0'));
+  w(t('usageExit1'));
+  w(t('usageExit2'));
+  w(t('usageExit2b'));
+  w(t('usageExit2c'));
+  w(t('usageExit2d'));
+  w('');
   w(t('helpScopeWarn'));
 
   process.exit(code);

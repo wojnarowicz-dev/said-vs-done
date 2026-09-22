@@ -31,7 +31,7 @@ const COMMANDS = {
     module: 'done.mjs',
     arg: '<text-dir> --code <repo> [<repo>...]',
     descKey: 'cmdDone',
-    options: '--tier sure|all  --only no-witness  --area deletion  --top 40  --json <file>',
+    options: '--tier sure|all  --only no-witness  --area deletion  --top 40  --json <file>  --fail-on-state',
   },
   diff: {
     module: null,

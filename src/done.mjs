@@ -13,6 +13,7 @@ import { loadConfig } from './config.mjs';
 import { findPromises } from './say.mjs';
 import { indexCode, judge, VERDICTS } from './coverage.mjs';
 import { noSourcesIn } from './population.mjs';
+import { summaryOf, exitCodeFor } from './summary.mjs';
 
 const argv = process.argv.slice(2);
 const ROOT = argv[0];
@@ -79,7 +80,31 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const r = checkCoverage(ROOT, codeRoots, cfg, { tier: TIER });
 
   const missing = noSourcesIn(r.stage1.files, '.html/.js/.md', ROOT);
-  if (missing) { console.log(missing); process.exit(0); }
+  if (missing) {
+    console.log(missing);
+
+    // NOTHING READ IS NOT A CLEAN BILL. This branch said exactly that, in a
+    // careful sentence, and then exited 0 — so a build pointed at a directory
+    // holding no policy text was told the promises were kept. The sentence was
+    // right and the number contradicted it, and the number is the half a build
+    // reads.
+    const summary = summaryOf({}, { textRead: 0 });
+    console.log('');
+    console.log(t('summaryLine', summary.actionable, summary.explained,
+      summary.notApplicable, summary.unreachable));
+    console.log(t('summaryUnread'));
+
+    const out = flag('json', null);
+    if (out && out !== true) {
+      const { writeSnapshot, SNAPSHOT_VERSION } = await import('./snapshot.mjs');
+      writeSnapshot(String(out), {
+        version: SNAPSHOT_VERSION, tool: 'said-vs-done', detector: 'done',
+        root: ROOT, args: [], createdAt: new Date().toISOString(),
+        summary, counts: {}, findings: [],
+      });
+    }
+    process.exit(2);
+  }
 
   const { prepare, diffHeader, resultExit } = await import('./snapshot.mjs');
 
@@ -100,6 +125,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       scopeStated: r.explicit,
     },
     findings: toFindings(shown),
+    summary: summaryOf(counts, { textRead: r.stage1.files, codeFiles: r.index.files }),
   });
 
   console.log(t('doneTitle'));
@@ -134,8 +160,24 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   }
   if (w.toShow.length > TOP) console.log('  ... and ' + (w.toShow.length - TOP) + ' more');
 
-  // EXIT CODE. 1 means there are promises the searched code does not keep —
-  // `no-witness` only. `elsewhere` and `inspect` are questions, not answers,
-  // and a build must not fail on a question.
-  resultExit(counts['no-witness'] ? 1 : 0);
+  // FOUR STATES, ONE LINE, BECAUSE A BUILD READS ONE NUMBER. The terminal can
+  // tell "eight promises nothing keeps" from "no policy text found"; a CI job
+  // gets an exit code, and without this the two arrive identical.
+  const summary = w.snap.summary;
+  console.log('');
+  console.log(t('summaryLine', summary.actionable, summary.explained,
+    summary.notApplicable, summary.unreachable));
+  if (summary.unreachableIs.aQuestionForAPerson > 0)
+    console.log(t('summaryQuestions', summary.unreachableIs.aQuestionForAPerson));
+  if (summary.unreachableIs.couldNotBeRead > 0) console.log(t('summaryUnread'));
+
+  // EXIT CODE. 1 means there are NEW promises the searched code does not keep;
+  // `--fail-on-state` makes any of them enough. 2 means something could not be
+  // READ — which is not the same as a question the tool cannot answer, and the
+  // comment this replaced already said so: `elsewhere` and `inspect` are
+  // questions, not answers, and a build must not fail on a question.
+  resultExit(exitCodeFor(summary, {
+    newActionable: w.diff ? w.diff.added.length : counts['no-witness'],
+    failOnState: argv.includes('--fail-on-state'),
+  }));
 }

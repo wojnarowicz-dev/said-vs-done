@@ -1,5 +1,15 @@
 {
   "mutedCount": 0,
+  "summary": {
+    "actionable": 0,
+    "explained": 11,
+    "notApplicable": 5,
+    "unreachable": 0,
+    "unreachableIs": {
+      "aQuestionForAPerson": 0,
+      "couldNotBeRead": 0
+    }
+  },
   "version": 1,
   "tool": "said-vs-done",
   "detector": "done",

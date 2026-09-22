@@ -26,6 +26,25 @@ export const language = LANG;
 const S = {
   // ---------- shared ----------
   'root': { en: 'text=', pl: 'tekst=' },
+  'usageExitTitle': { en: 'EXIT CODES', pl: 'KODY WYJSCIA' },
+  'usageExit0': { en: '  0   ran, and nothing new is actionable', pl: '  0   przebieglo, nic nowego do decyzji' },
+  'usageExit1': { en: '  1   NEW promises nothing keeps (with --fail-on-state: any at all)', pl: '  1   NOWE obietnice, ktorych nic nie dotrzymuje (z --fail-on-state: jakiekolwiek)' },
+  'usageExit2': { en: '  2   NOTHING was actionable AND something could not be read', pl: '  2   NIC nie bylo do decyzji, a czegos nie dalo sie odczytac' },
+  'usageExit2b': { en: '      (no policy text found, no code to search against)', pl: '      (nie znaleziono tekstu, nie ma kodu do przeszukania)' },
+  'usageExit2c': { en: '      A promise the tool CANNOT answer — a denial, where absent code proves', pl: '      Obietnica, ktorej narzedzie NIE UMIE rozstrzygnac — zaprzeczenie, gdzie brak' },
+  'usageExit2d': { en: '      nothing — is counted as unreachable but never sets an exit code.', pl: '      kodu nic nie dowodzi — liczy sie jako nieodczytane, ale nie ustawia kodu.' },
+  'summaryLine': {
+    en: 'summary: actionable={0}  explained={1}  notApplicable={2}  unreachable={3}',
+    pl: 'podsumowanie: doDecyzji={0}  wyjasnione={1}  nieDotyczy={2}  nieodczytane={3}' },
+  'summaryQuestions': {
+    en: '   {0} of those are questions a person has to answer, not failures to look — they never set an exit code',
+    pl: '   {0} z tego to pytania dla czlowieka, nie nieudany odczyt — nigdy nie ustawiaja kodu wyjscia' },
+  'summaryUnread': {
+    en: '   nothing was read here, so this run proves nothing about it (exit 2)',
+    pl: '   nic tu nie zostalo odczytane, wiec ten przebieg niczego nie dowodzi (kod 2)' },
+  'cmdFailOnState': {
+    en: '--fail-on-state  exit 1 whenever anything is actionable, not only when it is new',
+    pl: '--fail-on-state  kod 1, gdy cokolwiek jest do decyzji, nie tylko gdy nowe' },
   'settings': { en: 'settings: ', pl: 'ustawienia: ' },
   'savedRun': { en: 'run snapshot saved: {0}  (promises: {1})', pl: 'zapis przebiegu: {0}  (obietnic: {1})' },
   'noReason': { en: '(no reason given)', pl: '(bez podania powodu)' },

@@ -54,7 +54,7 @@ function stripSnapshotFlags(args) {
 // (`~2`, `~3`). This is not a perfect identifier — inserting a new matching
 // site BEFORE an existing one shifts the numbering and shows up as NEW + GONE.
 // That, however, is rare, whereas line numbers shift on every edit of a file.
-export function buildSnapshot({ detector, root, args, counts, findings, cfg }) {
+export function buildSnapshot({ detector, root, args, counts, findings, cfg, summary = null }) {
   const seen = new Map();
   let withIds = findings.map(f => {
     const base = { detector, ...f };
@@ -96,6 +96,15 @@ export function buildSnapshot({ detector, root, args, counts, findings, cfg }) {
 
   return {
     mutedCount,
+    // The four states, in the shape all four of these tools now share. Passed
+    // in rather than computed here: each tool counts different things, and
+    // only the tool knows which of its numbers is which state.
+    //
+    // OMITTED RATHER THAN NULL where a command does not produce verdicts.
+    // `say` reads text and reports the promises in it, and none of the four
+    // states describes that. A key that is present and says nothing is worse
+    // than no key — a reader cannot tell it apart from a run that forgot.
+    ...(summary ? { summary } : {}),
     version: SNAPSHOT_VERSION,
     tool: 'said-vs-done',
     detector,
