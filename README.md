@@ -24,6 +24,28 @@ sentence stays.
 Four languages (Polish, English, German, Spanish), nine areas of commitment, two
 stages.
 
+## What changed in 0.2.2
+
+Nothing about what the tool does, and nothing about any exit code. Three
+checks that could not go red now can.
+
+* **The README gate measured in the clone.** Every command on this page is run
+  from the repository, where `test/fixtures/` exists; the package ships `bin`,
+  `src`, this page and the licence. So three examples pointed at something no
+  reader has, the layer ran them happily, and there was no input at which it
+  would have said otherwise. It now asks whether the PATH an example names is
+  one the reader will have.
+* **The `npx` line on this page had never been run.**
+* **The page named four languages and only their COUNT was checked.** Swap
+  German for French and the claim `languages = 4` still passes, while the page
+  offers a language this build cannot read. And the gate never asked the other
+  question either: whether the code can read the four it names. A fifth entry
+  in `LANGUAGES` with no negation table, no compiled matcher and no stopword
+  list used to pass every check in the repository. Thirteen tables now
+  register themselves, four of them saying in words why they cover two
+  languages rather than four — and a table the register has never heard of is
+  red.
+
 ## What changed in 0.2.1
 
 Nothing about what the tool does, or about any exit code it returns. This is
