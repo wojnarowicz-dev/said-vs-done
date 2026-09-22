@@ -66,8 +66,27 @@ const SCENARIOS = [];
 // sibling tool: with the exit rule reverted, the decisive scenario there went
 // from LOUD to SPOKE — a different label, both of them PASSING, and the layer
 // stayed green over a build contract that had been undone.
+// EVERY EXPECTATION IS CHECKED, NOT JUST ONE OF THEM.
+//
+// `speaks` used to be a flat list and a scenario counted as having spoken if
+// ANY entry matched. A phrase that could no longer match anything therefore
+// sat green forever, carried by a neighbour — and measuring this layer found
+// two of them: `outside UTF-8` appears nowhere in this tool's source at all,
+// and `unreadable` appears only in comments and a variable name. Both had
+// been passing for as long as they had existed.
+//
+// But two scenarios legitimately list alternatives — `EPERM` on Windows and
+// `EACCES` elsewhere, an errno and the sentence that carries it. The two
+// cases are indistinguishable while both are written the same way, so they
+// are no longer written the same way: an EXPECTATION IS A GROUP, every group
+// must be satisfied, and any one spelling inside a group satisfies it. A
+// deliberate alternative now looks like one, and a dead phrase has nowhere
+// left to hide.
 const scenario = (name, damage, build, speaks, control, expectExit = null) =>
-  SCENARIOS.push({ name, damage, build, speaks, control, expectExit });
+  SCENARIOS.push({
+    name, damage, build, control, expectExit,
+    speaks: speaks.map(x => (Array.isArray(x) ? x : [x])),
+  });
 
 const healthySay = () => ['say', site('healthy')];
 
@@ -103,7 +122,7 @@ scenario('binary junk in a page', 'a file that is not text at all',
     fs.writeFileSync(path.join(d, 'broken.html'), junk);
     return ['say', d];
   },
-  ['outside UTF-8', 'not valid UTF-8', 'broken.html'],
+  ['not valid UTF-8', 'broken.html'],
   healthySay);
 
 scenario('page saved in cp1250', 'bytes that are not valid UTF-8',
@@ -115,7 +134,7 @@ scenario('page saved in cp1250', 'bytes that are not valid UTF-8',
     fs.writeFileSync(path.join(d, 'cp1250.html'), Buffer.concat([head, bytes, tail]));
     return ['say', d];
   },
-  ['outside UTF-8', 'not valid UTF-8', 'cp1250.html'],
+  ['not valid UTF-8', 'cp1250.html'],
   healthySay);
 
 scenario('truncated snapshot to diff against', 'previous run cut in half',
@@ -125,7 +144,7 @@ scenario('truncated snapshot to diff against', 'previous run cut in half',
     fs.writeFileSync(snap, '{\n  "version": 1,\n  "detector": "say",\n  "findings": [\n    {"id": "abc');
     return ['say', d, '--json', snap];
   },
-  ['could not be read', 'unreadable'],
+  ['could not be read'],
   () => {
     const d = site('goodsnap');
     const snap = path.join(d, 'run.json');
@@ -140,7 +159,7 @@ scenario('snapshot from a future version', 'a version the tool does not know',
     fs.writeFileSync(snap, JSON.stringify({ version: 999, tool: 'said-vs-done', detector: 'say', findings: [] }));
     return ['say', d, '--json', snap];
   },
-  ['could not be read', 'unreadable'],
+  ['could not be read'],
   () => {
     const d = site('goodsnap2');
     const snap = path.join(d, 'run.json');
@@ -183,7 +202,7 @@ scenario('unreadable page', 'read permission denied',
     try { fs.readFileSync(target); return { skip: 'the file is still readable; the deny did not take' }; }
     catch { return ['say', d]; }
   },
-  ['locked.html', 'EPERM', 'EACCES', 'Cannot read'],
+  ['locked.html', ['EPERM', 'EACCES', 'Cannot read']],
   healthySay);
 
 // THE ONE THAT IS THIS TOOL'S OWN. A `done` run with no --code at all is not
@@ -259,26 +278,51 @@ for (const s of SCENARIOS) {
   const damaged = run(args);
   const healthy = run(s.control());
 
-  const said = s.speaks.filter(k => damaged.out.includes(k) && !healthy.out.includes(k));
-  const useless = s.speaks.filter(k => damaged.out.includes(k) && healthy.out.includes(k));
+  // A STACK TRACE IS A CRASH WHATEVER THE EXIT CODE SAYS.
+  //
+  // CRASH was read off the exit code alone — anything outside {0, 1, 2}. An
+  // uncaught exception in Node exits 1, which that rule calls an ordinary
+  // failure, so a run that died on a TypeError could be scored SPOKE and the
+  // summary would print `0 CRASH` over it. The groups above catch the common
+  // case, because a dead tool prints none of the phrases a working one would
+  // — but they cannot catch a scenario whose expected phrase happens to
+  // appear before the throw, and that is the only kind this hides.
+  //
+  // Two shapes, both the runtime's rather than this tool's: a V8 stack frame,
+  // and an error class at the start of a line. This tool's own diagnostics
+  // name errno codes — EISDIR, EPERM, EACCES — and print neither shape, so a
+  // healthy run cannot match by accident.
+  const STACK_FRAME = /^\s+at .+:\d+:\d+\)?\s*$/m;
+  const ERROR_CLASS = /^[A-Za-z]*Error: /m;
+  const looksLikeACrash = out => STACK_FRAME.test(out) || ERROR_CLASS.test(out);
+
+  const hit = g => g.filter(k => damaged.out.includes(k));
+  const said = s.speaks.filter(g => g.some(k => damaged.out.includes(k) && !healthy.out.includes(k)));
+  const useless = s.speaks.filter(g => hit(g).length && hit(g).every(k => healthy.out.includes(k)));
+  const missing = s.speaks.filter(g => !hit(g).length);
 
   const status = damaged.status;
-  let state = (status !== 0 && status !== 1 && status !== 2) ? 'CRASH'
-    : status === 2 ? 'LOUD'
-      : said.length ? 'SPOKE' : 'SILENT';
+  let state = looksLikeACrash(damaged.out) ? 'CRASH'
+    : (status !== 0 && status !== 1 && status !== 2) ? 'CRASH'
+      : missing.length ? 'STALE'
+        : status === 2 ? 'LOUD'
+          : said.length ? 'SPOKE' : 'SILENT';
   if (s.expectExit !== null && status !== s.expectExit) state = 'WRONG-EXIT';
 
   let detail = 'exit ' + status;
   if (state === 'WRONG-EXIT') detail += '   expected exit ' + s.expectExit;
-  if (state === 'SPOKE') detail += '   "' + said[0] + '"';
+  if (state === 'STALE')
+    detail += '   never printed: ' + missing.map(g => g.map(k => JSON.stringify(k)).join(' / ')).join(', ');
+  if (state === 'SPOKE') detail += '   "' + hit(said[0])[0] + '"';
   if (state === 'SILENT' && useless.length)
-    detail += '   ("' + useless[0] + '" also printed by a healthy run)';
+    detail += '   ("' + hit(useless[0])[0] + '" also printed by a healthy run)';
   rows.push({ ...s, state, detail });
 }
 
 for (const r of rows) console.log('  ' + r.state.padEnd(7) + r.name.padEnd(36) + r.detail);
 
 const silent = rows.filter(r => r.state === 'SILENT');
+const stale = rows.filter(r => r.state === 'STALE');
 const wrongExit = rows.filter(r => r.state === 'WRONG-EXIT');
 const crashed = rows.filter(r => r.state === 'CRASH');
 const skipped = rows.filter(r => r.state === 'SKIP');
@@ -302,5 +346,11 @@ if (wrongExit.length) {
   for (const r of wrongExit)
     console.log('    ' + r.name + ' — a build reads that number and nothing else');
 }
-if (silent.length || crashed.length || wrongExit.length || ruleFailed) process.exit(1);
+if (stale.length) {
+  console.log('\n  Phrases that can no longer print:');
+  for (const r of stale)
+    console.log('    ' + r.name + ' — ' + r.detail.split('never printed: ')[1]);
+  console.log('\n  A phrase nothing can produce is a phrase nobody is checking.');
+}
+if (silent.length || crashed.length || wrongExit.length || stale.length || ruleFailed) process.exit(1);
 if (skipped.length) process.exit(2);
