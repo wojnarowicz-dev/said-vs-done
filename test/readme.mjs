@@ -161,7 +161,13 @@ for (const line of commands) {
     const paths = m[1].split(/\s+/)
       .filter(a => !a.startsWith('--') && !a.startsWith('<') && a !== '.')
       .filter(a => /[/\\]/.test(a) || /^[\w.-]+\.\w+$/.test(a));
-    const outside = paths.filter(p => !shipped.has(p) && !shipsDir(p));
+    // A PATH THE READER SUPPLIES IS NOT A PATH THIS PACKAGE OWES THEM.
+    // `./src/main/java` names a directory in THEIR project and is nowhere in
+    // this repository; `test/fixtures/project` is in this repository and does
+    // not ship. Only the second kind is a broken promise, and telling them
+    // apart is one question: does it exist here?
+    const outside = paths.filter(p => fs.existsSync(path.join(ROOT, p))
+      && !shipped.has(p) && !shipsDir(p));
     if (!outside.length) { runnable++; continue; }
 
     if (cloneOnly) {
