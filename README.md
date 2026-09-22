@@ -24,6 +24,44 @@ sentence stays.
 Four languages (Polish, English, German, Spanish), nine areas of commitment, two
 stages.
 
+## What changed in 0.2.0
+
+**If you run this in CI, read this line: the exit codes moved.** `2` now means
+*nothing was actionable AND something could not be read* — no policy text
+found, or no code to search against. Both `say` and `done` used to exit `0`
+there, printing a careful sentence saying nothing had been read and then
+telling the build everything was fine. If your job treats any non-zero code as
+failure, nothing changes for you. If it distinguishes them, `2` is now
+reachable on a run that previously returned `0`.
+
+**And `1` is now differential.** It used to fire whenever any promise came back
+`no-witness`; it now fires on NEW ones. A project with eight known unkept
+promises was red every day, and a build that is red every day teaches people to
+switch the tool off. `--fail-on-state` restores the old contract for anyone
+who wants it.
+
+**A question is not a failure to look.** A denied promise — "we never sell your
+data" — gets the verdict `inspect`, because no absence of code proves it. That
+is counted as `unreachable`, and it NEVER sets an exit code. It is the normal
+state of healthy material: 5 of them on matomo, 9 on joplin, 19 on the author's
+own. The JSON says which is which:
+
+```json
+"summary": {
+  "actionable": 0, "explained": 27, "notApplicable": 10, "unreachable": 5,
+  "unreachableIs": { "aQuestionForAPerson": 5, "couldNotBeRead": 0 }
+}
+```
+
+Everything else:
+
+* Every `done` run now carries that `summary` field, on screen and in the
+  JSON. `say` does not: it reports promises, not verdicts, and a key that says
+  nothing cannot be told from one somebody forgot.
+* The package page names the four languages of the text this tool reads. It
+  named none of them, so nobody searching for a tool that reads their German
+  privacy policy could find it.
+
 ## Run it without installing
 
 ```

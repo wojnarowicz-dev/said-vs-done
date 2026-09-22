@@ -126,7 +126,7 @@ for (const line of commands) {
 // cheapest check here and it catches the commonest rot: a section describing a
 // module that was renamed three commits ago.
 const flags = [...new Set([...text.matchAll(/`--([a-z-]+)`/g)].map(m => m[1]))];
-const KNOWN_FLAGS = new Set(['code', 'json', 'lang', 'config', 'tier', 'area', 'only', 'top', 'all', 'help', 'version', 'update']);
+const KNOWN_FLAGS = new Set(['code', 'json', 'lang', 'config', 'tier', 'area', 'only', 'top', 'all', 'help', 'version', 'update', 'fail-on-state']);
 const badFlags = flags.filter(f => !KNOWN_FLAGS.has(f));
 check('every flag named in the README exists', badFlags.length === 0,
   badFlags.length ? 'unknown: --' + badFlags.join(', --') : flags.length + ' flags');
