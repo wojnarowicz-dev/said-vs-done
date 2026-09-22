@@ -57,6 +57,74 @@ export function summaryOf(counts, { textRead = 1, codeFiles = 1 } = {}) {
 }
 
 /**
+ * The same four states for `say`, which judges nothing.
+ *
+ * WHY A SECOND FUNCTION AND NOT AN OPTION. `say` reads text; `done` reads code
+ * against it. The two commands count different things, and the whole point of
+ * this field is that one name means one thing. Two named functions put that
+ * difference where a reader trips over it; an options bag would have hidden it
+ * inside a branch.
+ *
+ * THE FIELD WAS MISSING FROM `say` ALTOGETHER on the successful path, and
+ * present on the failing one. A build reading `summary.unreachable` from `say`
+ * got an object when something broke and `undefined` when everything worked —
+ * the reverse of what the field was added for. Found by verifying 0.2.2 from
+ * the installed package rather than from the clone.
+ *
+ *   actionable     promises this run reports. Each one is work: somebody has
+ *                  to run `done` against it and find out whether the code
+ *                  keeps it. `say` already exited 1 on three promises, so the
+ *                  number now agrees with the code it was already returning.
+ *   explained      ALWAYS ZERO, and not because nothing fell into it. `say`
+ *                  does not open the code, so nothing here can be explained by
+ *                  anything — that is the whole of what `done` is for. A
+ *                  plausible number in this slot is the one thing this field
+ *                  exists to prevent.
+ *   notApplicable  sentences the dictionaries were run over which commit
+ *                  nobody to anything, plus promises `--tier` or `--area` set
+ *                  aside. A filtered promise is out of scope by request, and
+ *                  it has to be counted SOMEWHERE or those flags would remove
+ *                  items in silence — the defect just fixed in supadrift's
+ *                  allow-lists.
+ *   unreachable    files that could not be read, and the case where nothing
+ *                  was read at all.
+ *
+ * THESE FOUR DO NOT SUM TO THE SENTENCE COUNT, and nobody should expect them
+ * to. `actionable` counts DISTINCT promises and `notApplicable` counts
+ * SENTENCES that promise nothing, because those are the two things a reader
+ * acts on — a promise repeated on forty pages is one promise and one piece of
+ * work. Measured on the pinned web corpus: 27,088 sentences, of which 714
+ * carried a promise and collapsed to 470 distinct ones; the 244 are repeats,
+ * kept as `occurrences` on each promise rather than as a number here. Adding
+ * a fifth slot to make the arithmetic close would be tidier and would mean
+ * less.
+ *
+ * SENTENCES OF UNKNOWN LANGUAGE ARE NOT AMONG THESE FOUR, and that is a
+ * decision with a measurement behind it. On the pinned web corpus: 27,088
+ * sentences read and 14,675 whose language the guesser would not name — 35% of
+ * the material. Folding those into `unreachable` would make that number mean
+ * "a third of your text" in `say` and "a file I could not open" in `done`,
+ * which is exactly the drift this field exists to stop. They keep their own
+ * line in the report, where they have always been, and 14,675 is not a number
+ * anybody overlooks.
+ */
+export function summaryOfSay({ reported = 0, rejected = 0, filteredOut = 0,
+  unreadable = 0, textRead = 1 } = {}) {
+  const couldNotBeRead = unreadable + (textRead === 0 ? 1 : 0);
+  return {
+    actionable: reported,
+    explained: 0,
+    notApplicable: rejected + filteredOut,
+    unreachable: couldNotBeRead,
+    // ZERO, AND SPELLED OUT. `say` has no verdicts, so it has no `inspect` —
+    // no question for a person, because it has not asked one yet. The key is
+    // here anyway, because a CI job reading it must not have to know which
+    // command wrote the file.
+    unreachableIs: { aQuestionForAPerson: 0, couldNotBeRead },
+  };
+}
+
+/**
  * The exit code a finished run deserves.
  *
  * DIFFERENTIAL BY DEFAULT. A project with eight promises nothing keeps is red

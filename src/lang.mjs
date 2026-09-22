@@ -42,6 +42,16 @@ const S = {
   'summaryUnread': {
     en: '   nothing was read here, so this run proves nothing about it (exit 2)',
     pl: '   nic tu nie zostalo odczytane, wiec ten przebieg niczego nie dowodzi (kod 2)' },
+  // TWO SENTENCES, NOT ONE — the same correction looks-clean already made. The
+  // line above names exit 2 whatever the run is about to return. In `done`
+  // that was always true: nothing read means no promises, so nothing was ever
+  // actionable. In `say` it is not. A run can read nine files, fail on a tenth
+  // and still report promises — and then it exits 1 while a message claims 2.
+  // A message that states the wrong exit code is the page disagreeing with the
+  // tool, inside the tool.
+  'summaryUnreadPartial': {
+    en: '   {0} file(s) could not be read; what is above stands, what is in them is unknown',
+    pl: '   {0} plik(ow) nie dalo sie odczytac; to, co wyzej, jest prawda, a co w nich — nie wiadomo' },
   'cmdFailOnState': {
     en: '--fail-on-state  exit 1 whenever anything is actionable, not only when it is new',
     pl: '--fail-on-state  kod 1, gdy cokolwiek jest do decyzji, nie tylko gdy nowe' },

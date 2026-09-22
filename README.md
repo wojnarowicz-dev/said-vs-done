@@ -3,8 +3,8 @@
 [![tests](https://github.com/wojnarowicz-dev/said-vs-done/actions/workflows/ci.yml/badge.svg)](https://github.com/wojnarowicz-dev/said-vs-done/actions/workflows/ci.yml)
 [![known answers](https://img.shields.io/badge/known%20answers-0%20of%203%20checked%20in%20CI-lightgrey)](test/known-answers.mjs)
 
-The green badge covers **9 of the 10 layers**, on Node 18 and Node 24. The grey
-badge beside it is the tenth, and what green does not cover: all three
+The green badge covers **10 of the 11 layers**, on Node 18 and Node 24. The grey
+badge beside it is the eleventh, and what green does not cover: all three
 known answers need two private checkouts, so CI runs them, finds no material,
 and reports **exit 2 — neither a pass nor a failure**. Both numbers in that
 badge are checked by `test/readme.mjs` against a real run.
@@ -23,6 +23,45 @@ sentence stays.
 
 Four languages (Polish, English, German, Spanish), nine areas of commitment, two
 stages.
+
+## What changed in 0.2.3
+
+**`say` carries the `summary` field on every path, including the successful
+one.** It carried it only on the early exit, when nothing had been read — so a
+build reading `summary.unreachable` from `say` got an object when something had
+broken and `undefined` when everything had worked. The field was present where
+it was least needed and absent where the run had something to report, which is
+the reverse of what it was added for. 0.2.0 gave a reason for that — "a key
+that says nothing cannot be told from one somebody forgot" — and the reason was
+wrong: the cure for a key that says nothing is to make it say something.
+
+What the four numbers mean for a command that opens no code:
+
+| | |
+|---|---|
+| `actionable` | promises this run reports. Each one is work: somebody has to run `done` against it. `say` already exited 1 on three promises, so the number agrees with the code it was already returning. |
+| `explained` | **always zero**, and not because nothing fell into it. `say` does not read code, so nothing here can be explained by anything — that is the whole of what `done` is for. |
+| `notApplicable` | sentences the dictionaries were run over which commit nobody to anything, plus promises `--tier` or `--area` set aside. |
+| `unreachable` | files that could not be read, and the case where nothing was read at all. |
+
+**Sentences whose language could not be named are deliberately NOT among those
+four.** Measured on the pinned web corpus: 27,088 sentences read and 14,675
+unnamed — 35% of the material. Folding those into `unreachable` would make one
+number mean "a third of your text" in `say` and "a file I could not open" in
+`done`, which is exactly the drift this field exists to stop. They keep their
+own line in the report.
+
+**`--tier` and `--area` no longer remove promises silently.** A filtered
+promise is still a promise; it is counted under `notApplicable`, so
+`actionable + notApplicable` does not shrink when you narrow the view.
+
+**`say` honours `--fail-on-state` and can return 2.** Its exit code went
+through its own arithmetic — `newCount ? 1 : 0` — which is the shared rule
+written out a second time, so the flag did nothing there and the code for
+"nothing actionable and something unread" was unreachable.
+
+An eleventh layer asks both commands, on both paths, for the four numbers on
+screen and in the JSON, and checks that the two agree.
 
 ## What changed in 0.2.2
 
@@ -100,7 +139,8 @@ Everything else:
 
 * Every `done` run now carries that `summary` field, on screen and in the
   JSON. `say` does not: it reports promises, not verdicts, and a key that says
-  nothing cannot be told from one somebody forgot.
+  nothing cannot be told from one somebody forgot. *(That reasoning was wrong,
+  and 0.2.3 above says why.)*
 * The package page names the four languages of the text this tool reads. It
   named none of them, so nobody searching for a tool that reads their German
   privacy policy could find it.
@@ -374,11 +414,11 @@ line exists and still says what the citation claims.
 
 ---
 
-## Ten layers
+## Eleven layers
 
 Each catches something none of the others can.
 
-<!-- svd:claim name=testLayers value=10 -->
+<!-- svd:claim name=testLayers value=11 -->
 
 | layer | what only it can catch |
 |---|---|
@@ -391,9 +431,10 @@ Each catches something none of the others can.
 | `npm run scope` | an unstated scope printing as a finding — bug one, above |
 | `npm run evidence` | a verdict whose citation is a comment, a bundle, or a line that does not exist |
 | `npm run lang-check` | half a translation, which no fingerprint covers |
+| `npm run summary` | the four numbers missing from one command of two, or from one path of two |
 | `npm run readme` | this file drifting away from what it describes |
 
-`npm test` runs all ten.
+`npm test` runs all eleven.
 
 **On a fresh clone `npm test` exits 2, and that is not a failure.** The known
 answers need two private repositories, so that layer reports SKIP and the runner

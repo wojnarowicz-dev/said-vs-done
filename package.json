@@ -1,6 +1,6 @@
 {
   "name": "said-vs-done",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Reads the promises a project makes to its customers — in Polish, English, German or Spanish — and checks whether anything in the code keeps them. Said against done.",
   "license": "MIT",
   "author": "Aleksander Wojnarowicz",
@@ -35,6 +35,7 @@
     "lexicon": "node test/lexicon.mjs",
     "negative": "node test/negative.mjs",
     "scope": "node test/scope.mjs",
+    "summary": "node test/summary.mjs",
     "evidence": "node test/evidence.mjs",
     "lang-check": "node test/lang-check.mjs",
     "readme": "node test/readme.mjs",

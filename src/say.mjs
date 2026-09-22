@@ -14,7 +14,7 @@ import { reportNonUtf8 } from './input.mjs';
 import { loadConfig } from './config.mjs';
 import { collect, sentenceRows, unreadableFiles } from './collect.mjs';
 import { recognise, lexiconSize } from './promise.mjs';
-import { summaryOf } from './summary.mjs';
+import { summaryOf, summaryOfSay, exitCodeFor } from './summary.mjs';
 import { noSourcesIn } from './population.mjs';
 
 const argv = process.argv.slice(2);
@@ -32,9 +32,17 @@ export function findPromises(root, cfg) {
   const { rows, unknown } = sentenceRows(collected);
 
   const found = [];
-  for (const r of rows)
-    for (const h of recognise(r.sentence, r.lang))
-      found.push({ ...r, ...h });
+  // SENTENCES LOOKED AT AND SET ASIDE, counted here rather than derived later.
+  // `sentences - promises` would have been wrong twice over: promises are
+  // de-duplicated across pages, and one sentence can carry two of them. This
+  // is the number `notApplicable` needs — sentences the dictionaries were run
+  // over, which committed nobody to anything.
+  let rejected = 0;
+  for (const r of rows) {
+    const hits = recognise(r.sentence, r.lang);
+    if (!hits.length) { rejected++; continue; }
+    for (const h of hits) found.push({ ...r, ...h });
+  }
 
   // ONE SENTENCE, MANY PAGES, ONE PROMISE. A site repeats its navigation and
   // its meta description on every page; counting occurrences would say this
@@ -56,6 +64,7 @@ export function findPromises(root, cfg) {
     files: collected.files,
     sentences: rows.length,
     unknown,
+    rejected,
     promises: [...distinct.values()].sort((a, b) =>
       a.file.localeCompare(b.file) || a.line - b.line),
   };
@@ -120,13 +129,33 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const sure = result.promises.filter(p => p.tier === 'sure');
   const edge = result.promises.filter(p => p.tier === 'edge');
 
+  // THE FOUR NUMBERS FOR A COMMAND THAT JUDGES NOTHING. They were missing here
+  // entirely on the successful path and present on the failing one, so a build
+  // reading `summary.unreachable` from `say` got an object when something had
+  // broken and `undefined` when everything had worked. See summaryOfSay for
+  // what each of them counts and why `explained` is always zero.
+  //
+  // `filteredOut` is the promises `--tier` or `--area` set aside. They are
+  // still promises; the reader asked for a subset. Counting them under
+  // notApplicable is what stops those two flags removing items in silence —
+  // the defect just fixed in supadrift's allow-lists, which is the same defect.
+  const summary = summaryOfSay({
+    reported: shown.length,
+    rejected: result.rejected,
+    filteredOut: result.promises.length - shown.length,
+    unreadable: unreadableFiles().length,
+    textRead: result.files,
+  });
+
   const w = prepare(argv, {
     detector: 'say', root: ROOT, args: argv.slice(1), cfg,
     counts: {
       files: result.files, sentences: result.sentences, unknownLanguage: result.unknown,
       promises: result.promises.length, sure: sure.length, edge: edge.length,
+      rejected: result.rejected,
     },
     findings: toFindings(shown),
+    summary,
   });
 
   const lex = lexiconSize();
@@ -170,5 +199,22 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log(t('unreadableHint'));
   }
   reportNonUtf8(p => p);
-  resultExit(w.newCount ? 1 : 0);
+
+  // FOUR STATES, ONE LINE, BECAUSE A BUILD READS ONE NUMBER — and printed on
+  // this path too, not only when the run had nothing to read.
+  console.log('');
+  console.log(t('summaryLine', summary.actionable, summary.explained,
+    summary.notApplicable, summary.unreachable));
+  if (summary.unreachableIs.couldNotBeRead > 0)
+    console.log(t('summaryUnreadPartial', summary.unreachableIs.couldNotBeRead));
+
+  // THE EXIT CODE GOES THROUGH THE SHARED RULE INSTEAD OF ITS OWN ARITHMETIC.
+  // It was `w.newCount ? 1 : 0`, which is the same contract the rule states —
+  // but written out a second time, so `--fail-on-state` did nothing here and
+  // the 2 for "nothing actionable and something unread" was unreachable. The
+  // help offers that flag for both commands.
+  resultExit(exitCodeFor(summary, {
+    newActionable: w.newCount,
+    failOnState: argv.includes('--fail-on-state'),
+  }));
 }

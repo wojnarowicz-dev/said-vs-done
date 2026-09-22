@@ -1,5 +1,15 @@
 {
   "mutedCount": 0,
+  "summary": {
+    "actionable": 16,
+    "explained": 0,
+    "notApplicable": 13,
+    "unreachable": 0,
+    "unreachableIs": {
+      "aQuestionForAPerson": 0,
+      "couldNotBeRead": 0
+    }
+  },
   "version": 1,
   "tool": "said-vs-done",
   "detector": "say",
@@ -17,7 +27,8 @@
     "unknownLanguage": 0,
     "promises": 21,
     "sure": 16,
-    "edge": 5
+    "edge": 5,
+    "rejected": 8
   },
   "findings": [
     {

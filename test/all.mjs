@@ -24,6 +24,7 @@ const LAYERS = [
   ['golden', 'recorded runs, field by field'],
   ['amplify', 'the output depends on the input'],
   ['scope', 'an unstated scope is not a finding'],
+  ['summary', 'the four numbers, on every path of every command'],
   ['evidence', 'every citation is real'],
   ['resilience', 'fail loudly, never quietly'],
   ['readme', 'the README agrees with the tool'],
